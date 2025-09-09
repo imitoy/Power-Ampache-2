@@ -180,7 +180,7 @@
     <string name="dialog_deletePlaylist_text">%s löschen?</string>
 
     <string name="settings_downloadsSdCard_title">SD Card für Downloads nutzen</string>
-    <string name="settings_downloadsSdCard_subtitle">Funktioniert, wenn die SD card als System Storage gemountet wurde [EXPERIMENTELL]</string>
+    <string name="settings_downloadsSdCard_subtitle">Funktioniert, wenn die SD card als System Storage gemountet wurde</string>
 
     <!-- SETTINGS PLAYER -->
     <string name="settings_playerAdvancedSettings_title">Erweiterte Einstellungen (App muss neu gestartet werden)</string>

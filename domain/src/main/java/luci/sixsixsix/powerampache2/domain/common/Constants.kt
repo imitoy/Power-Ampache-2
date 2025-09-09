@@ -50,6 +50,11 @@ object Constants {
     const val PLAYER_CACHE_SIZE_MB_MAX = 2000
     const val PLAYER_CACHE_SIZE_MB_MIN = 20
 
+    // PLAYER BUFFER (size)
+    const val BUFFER_TARGET_BYTES = 20 * 1024 * 1024
+    const val PLAYBACK_BUFFER_SIZE_BYTES_MAX = 400 * 1024 * 1024
+    const val PLAYBACK_BUFFER_SIZE_BYTES_MIN = 10 * 1024 * 1024
+
     const val REQUEST_LIMIT_ALBUMS = 140
 
     // ERROR CONSTANTS

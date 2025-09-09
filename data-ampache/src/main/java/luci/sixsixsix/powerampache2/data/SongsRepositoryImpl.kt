@@ -554,11 +554,14 @@ class SongsRepositoryImpl @Inject constructor(
         ).getUrl(song.mediaId)
     } ?: song.songUrl
 
-    override suspend fun isSongAvailableOffline(song: Song): Boolean =
-        isSongAvailableOffline(song.mediaId, song.artist.id, song.album.id)
+//    override suspend fun isSongAvailableOffline(song: Song): Boolean =
+//        isSongAvailableOffline(song.mediaId, song.artist.id, song.album.id)
+//
+//    private suspend fun isSongAvailableOffline(songId: String, artistId: String, albumId: String): Boolean =
+//        dao.getDownloadedSong(songId, artistId, albumId) != null
 
-    private suspend fun isSongAvailableOffline(songId: String, artistId: String, albumId: String): Boolean =
-        dao.getDownloadedSong(songId, artistId, albumId) != null
+    override suspend fun isSongAvailableOffline(song: Song) =
+        getOfflineSongList().firstOrNull { it.mediaId == song.mediaId } != null
 
     // TODO FIX maybe should not be a flow since it only launches the worker,
     //  I don't need any result from this function
