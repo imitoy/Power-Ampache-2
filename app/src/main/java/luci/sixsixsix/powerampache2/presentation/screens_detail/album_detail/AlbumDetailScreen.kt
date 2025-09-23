@@ -294,8 +294,12 @@ fun AlbumDetailScreen(
                                 }
                                 AlbumInfoViewEvents.SHARE_ALBUM ->
                                     viewModel.onEvent(AlbumDetailEvent.OnShareAlbum)
-                                AlbumInfoViewEvents.DOWNLOAD_ALBUM ->
+                                AlbumInfoViewEvents.DOWNLOAD_ALBUM -> if (!state.isAlbumDownloaded) {
                                     mainViewModel.onEvent(MainEvent.OnDownloadSongs(songs))
+                                } else {
+                                    // if entire album is downloaded, the button will delete instead.
+                                    mainViewModel.onEvent(MainEvent.OnDownloadedSongListDelete(songs))
+                                }
                                 AlbumInfoViewEvents.SHUFFLE_PLAY_ALBUM -> {
                                     viewModel.onEvent(AlbumDetailEvent.OnShufflePlaylistToggle)
                                 }

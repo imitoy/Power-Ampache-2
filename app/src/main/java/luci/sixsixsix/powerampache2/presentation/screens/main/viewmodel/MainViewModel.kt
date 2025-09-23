@@ -341,6 +341,27 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun deleteDownloadedSongs(songs: List<Song>) = viewModelScope.launch {
+        var count = 0
+        songs.forEach { song ->
+            songsRepository.deleteDownloadedSong(song).collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        result.data?.let {
+                            // song deleted
+                            ++count
+                        }
+                    }
+
+                    is Resource.Error -> { /*todo*/}
+                    is Resource.Loading -> {}
+                }
+            }
+        }
+        playlistManager.updateUserMessage("Deleted $count songs.")
+
+    }
+
     fun logout() {
         viewModelScope.launch {
             if (isOfflineModeEnabledUseCase()) {

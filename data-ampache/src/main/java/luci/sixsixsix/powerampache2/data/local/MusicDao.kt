@@ -167,14 +167,16 @@ interface MusicDao {
     @Query("""SELECT SUM(playCount) AS acount, a.* FROM songentity AS s, albumentity AS a 
         WHERE a.id == s.albumId 
 		AND LOWER(s.multiUserId) == LOWER((SELECT multiUserId FROM credentialsentity WHERE primaryKey == '$CREDENTIALS_PRIMARY_KEY')) 
+        AND (a.rating >= :hideAlbumsRatedBelow OR a.rating == 0)
         GROUP BY s.albumId ORDER BY acount DESC LIMIT 122""")
-    suspend fun getMostPlayedAlbums(): List<AlbumEntity>
+    suspend fun getMostPlayedAlbums(hideAlbumsRatedBelow: Float = Constants.config.hideAlbumsRatedBelow): List<AlbumEntity>
 
     @Query("""SELECT SUM(playCount) AS acount, a.* FROM songentity AS s, albumentity AS a 
         WHERE a.id == s.albumId 
 		AND LOWER(s.multiUserId) == LOWER((SELECT multiUserId FROM credentialsentity WHERE primaryKey == '$CREDENTIALS_PRIMARY_KEY')) 
+        AND (a.rating >= :hideAlbumsRatedBelow OR a.rating == 0)
         GROUP BY s.albumId ORDER BY acount DESC LIMIT 122""")
-    fun getMostPlayedAlbumsFlow(): Flow<List<AlbumEntity>>
+    fun getMostPlayedAlbumsFlow(hideAlbumsRatedBelow: Float = Constants.config.hideAlbumsRatedBelow): Flow<List<AlbumEntity>>
 
 
     @Query("""SELECT SUM(history.playCount) AS acount, album.*, history.*, song.* FROM historyentity as history, downloadedsongentity as song , albumentity AS album
