@@ -35,7 +35,7 @@ Power Ampache 2 is a complete Android Music Streaming App suite, presented in <a
     <tr>
         <th>
             <a target="_blank" href="https://t.me/PowerAmpache">
-    <img width="50" height="50" hspace="20" alt="Telegram badge" src="https://static-00.iconduck.com/assets.00/telegram-icon-512x512-4sztjer8.png">
+    <img width="50" height="50" hspace="20" alt="Telegram badge" src="https://power.ampache.dev/telegram_badge_666.png">
 </a>
         </th>
         <th>
