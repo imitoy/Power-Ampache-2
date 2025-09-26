@@ -85,6 +85,11 @@ F-Droid releases can not upgrade to other releases and it is compiled, signed an
 Github, PlayStore and Telegram releases are signed by me.
 
 <br>
+<h2> Plugins </h2>
+<p><b>Enhance Power Ampache 2 with custom plugins.</b><br>Available for download via your favorite app store, GitHub Releases, and Telegram.</p>
+<p>Plugin rollout will begin in the coming days/weeks; check your favorite store regularly or follow the Telegram group for updates. If you're interested in beta versions of the plugins, they will be released exclusively in the Telegram group.</p>
+
+<br>
 
 <h2>Donate to support the project</h2>
 <table>
