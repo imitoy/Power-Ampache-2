@@ -192,12 +192,7 @@ fun OfflineSongsMainContent(
     // react to click on addToPlaylist icon
     if (playlistOrQueueDialogOpen.value && viewModel.state.songs.isNotEmpty()) {
         playlistsDialogOpen = AddToPlaylistOrQueueDialogOpen(true, viewModel.state.songs)
-    }
-
-  // TODO: This logic is broken, show not only check against empty queue,otherwise the user will see
-  //  a toast every this screen is accessed.
-  //  Also, I'm  not sure I want to show a toast when trying to add an empty list.
-    else if (playlistOrQueueDialogOpen.value && viewModel.state.songs.isEmpty()) {
+    } else if (playlistOrQueueDialogOpen.value && viewModel.state.songs.isEmpty()) {
         playlistOrQueueDialogOpen.value = false
         Toast.makeText(LocalContext.current, R.string.offline_noData_warning, Toast.LENGTH_LONG).show()
     }
