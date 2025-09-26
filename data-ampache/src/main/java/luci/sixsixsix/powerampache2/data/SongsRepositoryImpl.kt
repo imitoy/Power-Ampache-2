@@ -137,7 +137,6 @@ class SongsRepositoryImpl @Inject constructor(
             ?: offlineSongsFlow.first().takeIf { it.isNotEmpty() } ?: emptyList()
 
     init {
-        println("aaaa init SongsRepositoryImpl")
         applicationCoroutineScope.launch {
             dao.offlineModeEnabledFlow().distinctUntilChanged().collect {
                 if (it != null && it == false) {

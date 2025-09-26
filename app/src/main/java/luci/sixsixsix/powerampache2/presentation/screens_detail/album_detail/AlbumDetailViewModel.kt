@@ -122,6 +122,7 @@ class AlbumDetailViewModel @Inject constructor(
             // why drop(1)? OfflineSongsFlow is a state flow, meaning it has an initial value,
             // we're only interested in changes post loading, in particular downloads and delete.
             offlineSongsFlow()//.map { songs -> songs.map { it.id }.toHashSet() }
+                .drop(1)
                 .map { songs -> albumStateFlow.value.id to songs}
                 .filter { (albumId, _) -> albumId.isNotBlank() }
                 .map { (albumId, songs) ->
@@ -130,11 +131,10 @@ class AlbumDetailViewModel @Inject constructor(
                     songs.filter { it.album.id == albumId }.map { it.id }.toHashSet()
                 }
                 .distinctUntilChanged()
-                .drop(1)
                 //.filter { it.isNotEmpty() }
-                .debounce(200) // avoids rapid-fire refreshes during quick changes in offline songs.
+                .debounce(300) // avoids rapid-fire refreshes during quick changes in offline songs.
                 .collectLatest { ids ->
-                    L("RefreshFromCache ${ids.size}")
+                    L("aaaa RefreshFromCache ${ids.size}")
                     refreshFromCache()
             }
         }

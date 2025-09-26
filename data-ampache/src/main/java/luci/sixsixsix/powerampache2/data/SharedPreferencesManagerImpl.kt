@@ -32,6 +32,7 @@ import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_FOR_PLAYBACK_
 import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_FOR_PLAYBACK_MS
 import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_MAX_MS
 import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_MIN_MS
+import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_PRIORITIZE_TIME_OVER_SIZE_THRESHOLD_DEFAULT
 import luci.sixsixsix.powerampache2.domain.common.Constants.BUFFER_TARGET_BYTES
 import luci.sixsixsix.powerampache2.domain.common.Constants.PLAYER_CACHE_SIZE_MB
 import luci.sixsixsix.powerampache2.domain.delegates.SharedPreferenceDelegate
@@ -88,7 +89,7 @@ class SharedPreferencesManagerImpl @Inject constructor(
         set(value) = setInt(KEY_PLAYER_CACHE_SIZE, value)
 
     override var prioritizeTimeOverSizeThresholds: Boolean
-        get() = getBool(KEY_PRIORITIZE_TIME_BUFFER, true)
+        get() = getBool(KEY_PRIORITIZE_TIME_BUFFER, BUFFER_PRIORITIZE_TIME_OVER_SIZE_THRESHOLD_DEFAULT)
         set(value) = setBool(KEY_PRIORITIZE_TIME_BUFFER, value)
 
     override var targetBufferBytes: Int
@@ -118,7 +119,7 @@ class SharedPreferencesManagerImpl @Inject constructor(
         bufferForPlaybackMs = BUFFER_FOR_PLAYBACK_MS
         bufferForPlaybackAfterRebufferMs = BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
         cacheSizeMb = PLAYER_CACHE_SIZE_MB
-        prioritizeTimeOverSizeThresholds = false
+        prioritizeTimeOverSizeThresholds = BUFFER_PRIORITIZE_TIME_OVER_SIZE_THRESHOLD_DEFAULT
         targetBufferBytes = BUFFER_TARGET_BYTES
     }
 }
