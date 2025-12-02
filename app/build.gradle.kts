@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
+    //id("kotlin-kapt")
     id("kotlin-parcelize")
     // id("org.jetbrains.kotlin.plugin.compose")
     // id("dagger.hilt.android.plugin")
@@ -18,7 +18,7 @@ localProperties.load(project.rootProject.file("local.properties").inputStream())
 
 android {
     namespace = "luci.sixsixsix.powerampache2"
-    compileSdk = 35
+    compileSdk = 36
 
     val properties = Properties()
     val propertiesFile = project.rootProject.file("secrets.properties")
@@ -56,9 +56,9 @@ android {
     defaultConfig {
         applicationId = "luci.sixsixsix.powerampache2"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 91
-        versionName = "1.01-85"
+        targetSdk = 36
+        versionCode = 92
+        versionName = "1.01-86"
         val versionQuote = "This version is powered by Back to the Future and 5/2 * (2*15 + 5 - 1)"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -252,9 +252,9 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
-    }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.5.15"
+//    }
 
     packaging {
         resources {
@@ -334,8 +334,9 @@ dependencies {
 
     // --- Dagger Hilt --- //
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.androidx.hilt.compiler)
+    //kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
+    //kapt(libs.androidx.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.hilt.work)
