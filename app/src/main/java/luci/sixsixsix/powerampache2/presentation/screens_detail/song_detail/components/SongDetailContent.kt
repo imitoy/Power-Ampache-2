@@ -90,6 +90,7 @@ fun SongDetailContent(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel,
     pluginSong: PluginSongData?,
+    isChromecastPluginInstalled: Boolean,
     addToPlaylistOrQueueDialogViewModel: AddToPlaylistOrQueueDialogViewModel
 ) {
     val currentSongState by mainViewModel.currentSongStateFlow().collectAsState()
@@ -165,7 +166,7 @@ fun SongDetailContent(
                 onSwipeRight = { mainViewModel.onEvent(MainEvent.SkipPrevious) }
             )
 
-            if (mainViewModel.chromecastPluginInstalled()) {
+            if (isChromecastPluginInstalled) {
                 IconButton(
                     modifier = Modifier.padding(8.dp),
                     colors = IconButtonDefaults.iconButtonColors(
