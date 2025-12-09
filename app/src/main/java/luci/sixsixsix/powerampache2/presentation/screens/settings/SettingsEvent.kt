@@ -40,4 +40,6 @@ sealed class SettingsEvent {
     data class OnStreamingQualityChange(val newValue: StreamingQuality): SettingsEvent()
     data class OnThemeChange(val newValue: PowerAmpTheme): SettingsEvent()
     data class OnDownloadFavouriteAfterPlayChange(val isDownloadFavourite: Boolean): SettingsEvent()
+    data object OnResetSleepTimer: SettingsEvent()
+    data class OnSetSleepTimer(val timerMins: Int): SettingsEvent()
 }

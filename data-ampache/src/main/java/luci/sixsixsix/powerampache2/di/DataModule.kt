@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import luci.sixsixsix.powerampache2.ImageLoaderProviderImpl
+import luci.sixsixsix.powerampache2.data.SleepTimerEventBusImpl
 import luci.sixsixsix.powerampache2.data.common.Constants.DB_LOCAL_NAME
 import luci.sixsixsix.powerampache2.data.local.MusicDatabase
 import luci.sixsixsix.powerampache2.data.mapping.AmpacheDateMapper
@@ -21,6 +22,7 @@ import luci.sixsixsix.powerampache2.data.remote.AmpacheOkHttpClientBuilder
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork.Companion.BASE_URL
 import luci.sixsixsix.powerampache2.data.remote.PingScheduler
+import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_CONNECTION_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_READ_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_WRITE_S
@@ -102,8 +104,16 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideAlarmScheduler(application: Application): AlarmScheduler =
-        PingScheduler(application)
+    fun provideAlarmScheduler(
+        application: Application,
+        sharedPreferencesManager: SharedPreferencesManager,
+        coroutineScope: CoroutineScope
+    ): AlarmScheduler =
+        PingScheduler(application, sharedPreferencesManager, coroutineScope)
+
+    @Provides
+    @Singleton
+    fun provideSleepTimerEventBus(): SleepTimerEventBus = SleepTimerEventBusImpl()
 
     @Provides
     @Singleton

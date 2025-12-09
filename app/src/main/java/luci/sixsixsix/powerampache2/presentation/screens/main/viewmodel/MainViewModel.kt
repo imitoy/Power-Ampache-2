@@ -62,6 +62,7 @@ import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.shareLink
 import luci.sixsixsix.powerampache2.common.toMediaItem
 import luci.sixsixsix.powerampache2.domain.MusicRepository
+import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.SongsRepository
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
 import luci.sixsixsix.powerampache2.domain.models.Song
@@ -104,6 +105,7 @@ class MainViewModel @Inject constructor(
     val songsRepository: SongsRepository,
     val simpleMediaServiceHandler: SimpleMediaServiceHandler,
     val shareManager: ShareManager,
+    private val sleepTimerEventBus: SleepTimerEventBus,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) /*, MainQueueManager*/ {
     var state by savedStateHandle.saveable { mutableStateOf(MainState()) }
@@ -157,6 +159,13 @@ class MainViewModel @Inject constructor(
         if (SimpleMediaService.isRunning) {
             // initialize the controllers if returning from killed state and service running
             initController(application)
+        }
+
+        // Listen to sleep timer events
+        viewModelScope.launch {
+            sleepTimerEventBus.sleepTimerEvents.collect {
+                resetStopMusic()
+            }
         }
     }
 
@@ -451,6 +460,15 @@ class MainViewModel @Inject constructor(
             }
         } else {
             stopService()
+        }
+    }
+
+    fun resetStopMusic() {
+        try {
+            playlistManager.reset()
+            stopMusicService()
+        } catch (e: Exception) {
+            L.e(e)
         }
     }
 

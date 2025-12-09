@@ -265,6 +265,12 @@
     <string name="settings_playerBufferSizeBytes_title">Target buffer size</string>
     <string name="settings_playerBufferSizeBytes_subtitle">Sets the target buffer size (If you experience out-of-memory issues, lower this value)</string>
 
+    <string name="sleepTimer_title">Sleep Timer</string>
+    <string name="sleepTimer_subtitle">Sets a sleep timer to stop music after the specified interval.</string>
+    <string name="sleepTimer_time_set">Will stop music at %s (approximate)</string>
+    <string name="sleepTimer_time_unset">No timer set</string>
+    <string name="settings_player_unit_minutes">Minutes</string>
+
     <!-- PLUGINS -->
     <string name="plugin_cast_queueEmpty_warning">Your Queue is Empty</string>
     <string name="plugin_cast_queueTooLarge_error">Queue too large, cannot send to the Cast plugin</string>

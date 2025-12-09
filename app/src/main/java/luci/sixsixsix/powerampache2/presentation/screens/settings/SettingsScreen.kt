@@ -40,7 +40,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -97,6 +96,7 @@ import luci.sixsixsix.powerampache2.presentation.destinations.DebugLogsScreenDes
 import luci.sixsixsix.powerampache2.presentation.dialogs.EraseConfirmDialog
 import luci.sixsixsix.powerampache2.presentation.screens.settings.components.PlayerSettingsView
 import luci.sixsixsix.powerampache2.presentation.screens.settings.components.SettingsDropDownMenu
+import luci.sixsixsix.powerampache2.presentation.screens.settings.components.SleepTimerSettingsView
 import java.lang.ref.WeakReference
 
 private const val IS_MONO_SWITCH_ENABLED = false
@@ -105,7 +105,7 @@ private const val IS_OFFLINE_MODE_SWITCH_ENABLED = true
 private const val IS_SMART_DOWNLOADS_SWITCH_ENABLED = false
 private const val IS_AUTO_UPDATE_ENABLED = true
 private const val IS_EQUALIZER_BTN_ENABLED = true
-private const val MAX_VISIBLE_COLUMS_ITEMS = 25
+private const val MAX_VISIBLE_COLUMNS_ITEMS = 25
 
 @Composable
 @Destination
@@ -159,6 +159,8 @@ fun SettingsScreen(
         isDownloadSdCard = localSettingsState.isDownloadsSdCard,
         targetBufferBytes = playerSettingsState.targetBufferBytes,
         isPrioritizeTimeOverSizeThresholds = playerSettingsState.prioritizeTimeOverSizeThresholds,
+        sleepTimerMins = playerSettingsState.sleepTimerMins,
+        endTimeStr = playerSettingsState.sleepTimerEndTime,
         onThemeSelected = {
             settingsViewModel.onEvent(SettingsEvent.OnThemeChange(it))
         },
@@ -254,6 +256,12 @@ fun SettingsScreen(
         },
         onPrioritizeTimeOverSizeThresholdsChange = {
             settingsViewModel.onPlayerEvent(PlayerSettingsEvent.OnPrioritizeTimeOverSizeThresholdsChange(it))
+        },
+        onResetSleepTimer = {
+            settingsViewModel.onEvent(SettingsEvent.OnResetSleepTimer)
+        },
+        onSetSleepTimer = {
+            settingsViewModel.onEvent(SettingsEvent.OnSetSleepTimer(it))
         }
     )
 }
@@ -305,6 +313,8 @@ fun SettingsScreenContent(
     bufferForPlaybackAfterRebuffer: Int,
     isUseOkHttpPlayer: Boolean,
     targetBufferBytes: Int,
+    sleepTimerMins: Int,
+    endTimeStr: String?,
     isPrioritizeTimeOverSizeThresholds: Boolean,
     onThemeSelected: (selected: PowerAmpTheme) -> Unit,
     onStreamingQualitySelected: (selected: StreamingQuality) -> Unit,
@@ -334,6 +344,8 @@ fun SettingsScreenContent(
     onPrioritizeTimeOverSizeThresholdsChange: (newValue: Boolean) -> Unit,
     onResetValuesClick: () -> Unit,
     onKillAppClick: () -> Unit,
+    onResetSleepTimer: () -> Unit,
+    onSetSleepTimer: (newValue: Int) -> Unit,
     modifier: Modifier = Modifier,
     donateButton: @Composable () -> Unit = { DonateButton(isExpanded = true, isTransparent = false) }
 ) {
@@ -360,7 +372,7 @@ fun SettingsScreenContent(
             .padding(horizontal = dimensionResource(id = R.dimen.settings_padding_horizontal))
             .padding(top = dimensionResource(id = R.dimen.settings_padding_top))
     ) {
-        items(MAX_VISIBLE_COLUMS_ITEMS) { index ->
+        items(MAX_VISIBLE_COLUMNS_ITEMS) { index ->
             when(index) {
                 0 -> SettingsHeader()
                 // THEME PICKER
@@ -426,7 +438,9 @@ fun SettingsScreenContent(
                         showDeleteDownloadsDialog = true
                     }
                 )
-                8 -> PlayerSettingsView(
+
+                // PLAYER SETTINGS
+                9 -> PlayerSettingsView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -454,8 +468,14 @@ fun SettingsScreenContent(
                     isPrioritizeTimeOverSizeThresholdsChange = isPrioritizeTimeOverSizeThresholds,
                     onPrioritizeTimeOverSizeThresholdsChange = onPrioritizeTimeOverSizeThresholdsChange
                 )
+                10 -> SleepTimerSettingsView(
+                    sliderValue = sleepTimerMins,
+                    endTimeStr = endTimeStr,
+                    onReset = onResetSleepTimer,
+                    onValueChange = onSetSleepTimer
+                )
                 // NORMALIZE VOLUME SWITCH
-                9 -> PowerAmpSwitch(
+                11 -> PowerAmpSwitch(
                     enabled = IS_NORMALIZE_SWITCH_ENABLED,
                     title = R.string.settings_normalizeVolume_title,
                     subtitle = R.string.settings_normalizeVolume_subtitle,
@@ -463,16 +483,7 @@ fun SettingsScreenContent(
                     onCheckedChange = onNormalizeValueChange,
                     modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
                 )
-                // MONO SWITCH
-                10 -> PowerAmpSwitch(
-                    enabled = IS_MONO_SWITCH_ENABLED,
-                    title = R.string.settings_monoAudio_title,
-                    subtitle = R.string.settings_monoAudio_subtitle,
-                    checked = isMonoAudioEnabled,
-                    onCheckedChange = onMonoValueChange,
-                    modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
-                )
-                11 -> if (IS_AMPACHE_DATA) {
+                17 -> if (IS_AMPACHE_DATA) {
                     AmpacheSettingsListItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -480,14 +491,14 @@ fun SettingsScreenContent(
                         onClick = onAmpachePreferencesButtonPress
                     )
                 }
-                12 -> PowerAmpSwitch(
+                18 -> PowerAmpSwitch(
                     title = R.string.settings_enableDebugLogging_title,
                     subtitle = R.string.settings_enableDebugLogging_subtitle,
                     checked = remoteLoggingEnabled,
                     onCheckedChange = onEnableLoggingValueChange,
                     modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
                 )
-                13 -> TextWithSubtitle(
+                19 -> TextWithSubtitle(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem),
@@ -496,12 +507,18 @@ fun SettingsScreenContent(
                     onClick = onDebugLogsButtonPress
                 )
 
-                14 -> donateButton()
-                15 -> if (!BuildConfig.HIDE_DONATION) {
+                22 -> donateButton()
+                23 -> if (!BuildConfig.HIDE_DONATION) {
                     PowerAmpCheckBox(title = R.string.settings_hideDonationButtonsMenu_title,
                         checked = hideDonationButtons,
                         onCheckedChange = onHideDonateValueChange,
                         modifier = Modifier.padding(start = paddingHorizontalItem))
+                }
+                24 -> if (Constants.config.showSettingsExportDbButton) {
+                    val contextWeak = WeakReference(LocalContext.current)
+                    Button(onClick = { contextWeak.get()?.exportAndShareRoomDb() }) {
+                        Text("Export Internal SQLite db")
+                    }
                 }
 
                 // Anything above MAX_VISIBLE_ITEMS is not visible
@@ -567,12 +584,16 @@ fun SettingsScreenContent(
                     trailingIcon = Icons.Default.KeyboardArrowRight,
                     onClick = onEqualizerPress
                 )
-                23 -> if (Constants.config.showSettingsExportDbButton) {
-                    val contextWeak = WeakReference(LocalContext.current)
-                    Button(onClick = { contextWeak.get()?.exportAndShareRoomDb() }) {
-                        Text("Export Internal SQLite db")
-                    }
-                }
+                // MONO SWITCH
+                34 -> PowerAmpSwitch(
+                    enabled = IS_MONO_SWITCH_ENABLED,
+                    title = R.string.settings_monoAudio_title,
+                    subtitle = R.string.settings_monoAudio_subtitle,
+                    checked = isMonoAudioEnabled,
+                    onCheckedChange = onMonoValueChange,
+                    modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
+                )
+
                 else -> { }
             }
         }
@@ -804,6 +825,10 @@ fun PreviewSettingsScreen() {
         onTargetBufferBytesChange = {},
         onPrioritizeTimeOverSizeThresholdsChange = {},
         isPrioritizeTimeOverSizeThresholds = false,
-        targetBufferBytes = 3000
+        targetBufferBytes = 3000,
+        onSetSleepTimer = {},
+        onResetSleepTimer = {},
+        sleepTimerMins = 11,
+        endTimeStr = ""
     )
 }

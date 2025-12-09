@@ -34,5 +34,7 @@ data class PlayerSettingsState (
     val cacheSizeMb: Int,
     val useOkHttpExoplayer: Boolean,
     val prioritizeTimeOverSizeThresholds: Boolean,
-    val targetBufferBytes: Int
+    val targetBufferBytes: Int,
+    val sleepTimerMins: Int,
+    val sleepTimerEndTime: String?
 ): Parcelable

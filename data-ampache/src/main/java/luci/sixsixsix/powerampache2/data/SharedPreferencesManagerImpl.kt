@@ -51,6 +51,8 @@ private const val KEY_ALLOW_ALL_CERTIFICATES = "luci.sixsixsix.powerampache2.dat
 private const val KEY_PRIORITIZE_TIME_BUFFER = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.prioritizetimbufferoverspace"
 private const val KEY_USE_OKHTTP_EXOPLAYER = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.useokhttpforexoplayer"
 private const val KEY_INTRO_DIALOG_CONTENT = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.intro.dialog.content"
+private const val KEY_SLEEPTIMER_END_TIMESTAMP_MIN = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.sleeptimer.end.timestamp"
+private const val SLEEPTIMER_END_TIMESTAMP_RESET = 0
 
 @Singleton
 class SharedPreferencesManagerImpl @Inject constructor(
@@ -109,6 +111,10 @@ class SharedPreferencesManagerImpl @Inject constructor(
         get() = getString(KEY_INTRO_DIALOG_CONTENT, "")
         set(value) = setString(KEY_INTRO_DIALOG_CONTENT, value)
 
+    override var sleepTimerEndTimestamp: Long
+        get() = getString(KEY_SLEEPTIMER_END_TIMESTAMP_MIN, SLEEPTIMER_END_TIMESTAMP_RESET.toString()).toLong()
+        set(value) { setString(KEY_SLEEPTIMER_END_TIMESTAMP_MIN, value.toString()) }
+
     override fun shouldShowIntroDialog(newContent: String) =
         Constants.config.shouldShowIntroMessage && newContent != introDialogContent
 
@@ -121,5 +127,9 @@ class SharedPreferencesManagerImpl @Inject constructor(
         cacheSizeMb = PLAYER_CACHE_SIZE_MB
         prioritizeTimeOverSizeThresholds = BUFFER_PRIORITIZE_TIME_OVER_SIZE_THRESHOLD_DEFAULT
         targetBufferBytes = BUFFER_TARGET_BYTES
+    }
+
+    override fun resetSleepTimer() {
+        sleepTimerEndTimestamp = SLEEPTIMER_END_TIMESTAMP_RESET.toLong()
     }
 }

@@ -140,12 +140,7 @@ fun MainViewModel.handleEvent(event: MainEvent, context: Context) {
         MainEvent.OnFabPress ->
             getSongsForQuickPlay()
         MainEvent.Reset -> {
-            try {
-                playlistManager.reset()
-                stopMusicService()
-            } catch (e: Exception) {
-                L.e(e)
-            }
+            resetStopMusic()
         }
         is MainEvent.OnExportDownloadedSong -> viewModelScope.launch {
             try {
