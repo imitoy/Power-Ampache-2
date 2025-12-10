@@ -64,6 +64,12 @@ class AlarmReceiver: BroadcastReceiver() {
                     L("aaaa SLEEP TIMER TRIGGERED ----***------***-----")
                     // TODO: check if the emitted event is not too old?
                     sleepTimerEventBus.emitSleepTimerExpired()
+                    context?.applicationContext?.let { application ->
+                        application.stopService(Intent().setClassName(
+                            "luci.sixsixsix.powerampache2.player",
+                            "luci.sixsixsix.powerampache2.player.SimpleMediaPlayer"
+                        ))
+                    }
                 }
                 ACTION_PING -> performPing()
             }

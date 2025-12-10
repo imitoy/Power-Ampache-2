@@ -59,7 +59,7 @@ android {
         targetSdk = 35 // 36 will enforce edge-to-edge
         versionCode = 92
         versionName = "1.01-86"
-        val versionQuote = "This version is powered by Back to the Future and 5/2 * (2*15 + 5 - 1)"
+        val versionQuote = "This version is powered by the elliptical galaxy in the Virgo Cluster"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
