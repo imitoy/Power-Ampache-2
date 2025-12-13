@@ -26,6 +26,7 @@ import android.app.AlarmManager.INTERVAL_HOUR
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
@@ -106,10 +107,20 @@ class PingScheduler @Inject constructor(
 
             sharedPreferencesManager.sleepTimerEndTimestamp = triggerAt
 
-            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                triggerAt,
-                sleepTimerPendingIntent
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                    triggerAt,
+                    sleepTimerPendingIntent
+                )
+            } else {
+                println("aaaa setting exact alarm")
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                    triggerAt,
+                    sleepTimerPendingIntent
+                )
+            }
+            //alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+
         }
     }
 

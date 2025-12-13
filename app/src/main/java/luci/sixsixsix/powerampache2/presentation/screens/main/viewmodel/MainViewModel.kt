@@ -77,6 +77,7 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCa
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleOfflineModeUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.songs.IsSongAvailableOfflineUseCase
 import luci.sixsixsix.powerampache2.domain.utils.ShareManager
+import luci.sixsixsix.powerampache2.player.MusicController
 import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import luci.sixsixsix.powerampache2.player.PlayerEvent
 import luci.sixsixsix.powerampache2.player.RepeatMode
@@ -106,6 +107,7 @@ class MainViewModel @Inject constructor(
     val simpleMediaServiceHandler: SimpleMediaServiceHandler,
     val shareManager: ShareManager,
     private val sleepTimerEventBus: SleepTimerEventBus,
+    private val musicController: MusicController,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) /*, MainQueueManager*/ {
     var state by savedStateHandle.saveable { mutableStateOf(MainState()) }
@@ -133,8 +135,6 @@ class MainViewModel @Inject constructor(
     private var downloadAfterPlaybackJob: Job? = null
     private var deepLinkJob: Job? = null
 
-    private var startMusicServiceCalled = false // ensure called only once
-
     var emittedDownloads by savedStateHandle.saveable { mutableStateOf(listOf<String>()) }
 
     // TODO: there is no queue to restore! because the queue is in MusicPlaylistManager
@@ -143,10 +143,10 @@ class MainViewModel @Inject constructor(
 
     val mainLock = Any()
 
-    private val serviceIntent = Intent(application, SimpleMediaService::class.java)
-
-    private var controller: MediaController? = null
-    private var controllerFuture: ListenableFuture<MediaController>? = null
+//    private val serviceIntent = Intent(application, SimpleMediaService::class.java)
+//    private var controller: MediaController? = null
+//    private var controllerFuture: ListenableFuture<MediaController>? = null
+//    private var startMusicServiceCalled = false // ensure called only once
 
     init {
         L("SERVICE- MainViewModel init")
@@ -156,35 +156,37 @@ class MainViewModel @Inject constructor(
         observeSession()
         observeDownloads(application)
 
-        if (SimpleMediaService.isRunning) {
-            // initialize the controllers if returning from killed state and service running
-            initController(application)
-        }
-
-        // Listen to sleep timer events
-        viewModelScope.launch {
-            sleepTimerEventBus.sleepTimerEvents.collect {
-                resetStopMusic()
-            }
-        }
+//        if (SimpleMediaService.isRunning) {
+//            // initialize the controllers if returning from killed state and service running
+//            initController(application)
+//        }
+//
+//        // Listen to sleep timer events
+//        viewModelScope.launch {
+//            sleepTimerEventBus.sleepTimerEvents.collect {
+//                resetStopMusic()
+//            }
+//        }
     }
 
     private fun initController(context: Context) {
-        val sessionToken = SessionToken(context, ComponentName(context, SimpleMediaService::class.java))
-        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture?.addListener(
-            {
-                controller = controllerFuture?.get()
-            },
-            ContextCompat.getMainExecutor(context)
-        )
+        musicController.initController(context)
+//        val sessionToken = SessionToken(context, ComponentName(context, SimpleMediaService::class.java))
+//        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+//        controllerFuture?.addListener(
+//            {
+//                controller = controllerFuture?.get()
+//            },
+//            ContextCompat.getMainExecutor(context)
+//        )
     }
 
     private fun releaseController() {
-        controller?.release()
-        controller = null
-        controllerFuture?.cancel(true)
-        controllerFuture = null
+        musicController.releaseController()
+//        controller?.release()
+//        controller = null
+//        controllerFuture?.cancel(true)
+//        controllerFuture = null
     }
 
     fun currentQueue() = playlistManager.currentQueueState
@@ -423,53 +425,57 @@ class MainViewModel @Inject constructor(
 
     @OptIn(UnstableApi::class)
     fun startMusicServiceIfNecessary() {
-        if(!SimpleMediaService.isRunning && !startMusicServiceCalled) {
-            L("SERVICE- startMusicServiceIfNecessary")
-            weakContext.get()?.applicationContext?.let { applicationContext ->
-                startForegroundService(applicationContext, serviceIntent)
-                initController(applicationContext)
-                startMusicServiceCalled = true
-            }
-        }
+        musicController.startMusicServiceIfNecessary()
+//        if(!SimpleMediaService.isRunning && !startMusicServiceCalled) {
+//            L("SERVICE- startMusicServiceIfNecessary")
+//            weakContext.get()?.applicationContext?.let { applicationContext ->
+//                startForegroundService(applicationContext, serviceIntent)
+//                initController(applicationContext)
+//                startMusicServiceCalled = true
+//            }
+//        }
     }
 
     @OptIn(UnstableApi::class)
     private fun stopService() {
-        L("SERVICE- stopMusicService isRunning: ${SimpleMediaService.isRunning}")
-
-        if (!SimpleMediaService.isRunning) return
-        releaseController()
-
-        weakContext.get()?.applicationContext?.let { applicationContext ->
-            try {
-                L("SERVICE- stopMusicService")
-                applicationContext.stopService(serviceIntent)
-                startMusicServiceCalled = false
-            } catch (e: Exception) {
-                startMusicServiceCalled = false
-                L.e(e, "SERVICE-")
-            }
-        }
+        musicController.stopService()
+//        L("SERVICE- stopMusicService isRunning: ${SimpleMediaService.isRunning}")
+//
+//        if (!SimpleMediaService.isRunning) return
+//        releaseController()
+//
+//        weakContext.get()?.applicationContext?.let { applicationContext ->
+//            try {
+//                L("SERVICE- stopMusicService")
+//                applicationContext.stopService(serviceIntent)
+//                startMusicServiceCalled = false
+//            } catch (e: Exception) {
+//                startMusicServiceCalled = false
+//                L.e(e, "SERVICE-")
+//            }
+//        }
     }
 
     fun stopMusicService(addDelay: Boolean = true) {
-        if (addDelay) {
-            viewModelScope.launch {
-                delay(SERVICE_STOP_TIMEOUT) // safety net, delay stopping the service in case the application just got restored from background
-                stopService()
-            }
-        } else {
-            stopService()
-        }
+        musicController.stopMusicService(addDelay)
+//        if (addDelay) {
+//            viewModelScope.launch {
+//                delay(SERVICE_STOP_TIMEOUT) // safety net, delay stopping the service in case the application just got restored from background
+//                stopService()
+//            }
+//        } else {
+//            stopService()
+//        }
     }
 
     fun resetStopMusic() {
-        try {
-            playlistManager.reset()
-            stopMusicService()
-        } catch (e: Exception) {
-            L.e(e)
-        }
+        musicController.resetStopMusic()
+//        try {
+//            playlistManager.reset()
+//            stopMusicService()
+//        } catch (e: Exception) {
+//            L.e(e)
+//        }
     }
 
     fun nextRepeatMode(): RepeatMode =
@@ -543,7 +549,8 @@ class MainViewModel @Inject constructor(
             isPlayLoading = false
         )
 
-        releaseController()
+        // TODO: CHECK no need to release controller if it stays alive in MusicController
+        // releaseController()
 
         // attempt to stop the service
 //        try {
