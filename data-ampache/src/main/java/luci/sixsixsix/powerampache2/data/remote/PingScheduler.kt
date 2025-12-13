@@ -113,14 +113,11 @@ class PingScheduler @Inject constructor(
                     sleepTimerPendingIntent
                 )
             } else {
-                println("aaaa setting exact alarm")
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
                     triggerAt,
                     sleepTimerPendingIntent
                 )
             }
-            //alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-
         }
     }
 
