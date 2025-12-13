@@ -61,6 +61,7 @@ fun SongDetailScreen(
     val lyricsTag by songDetailViewModel.lyrics.collectAsStateWithLifecycle()
     val pluginLyrics by songDetailViewModel.pluginLyrics.collectAsStateWithLifecycle()
     val pluginInfo by songDetailViewModel.pluginInfo.collectAsStateWithLifecycle()
+    val isChromecastPluginInstalled by songDetailViewModel.isChromecastPluginInstalledStateFlow.collectAsState()
 
     var rememberSongId by remember { mutableStateOf(song?.id ?: "") }
 
@@ -109,6 +110,7 @@ fun SongDetailScreen(
             modifier = Modifier.padding(paddingValues = it),
             mainViewModel = viewModel,
             pluginSong = pluginInfo,
+            isChromecastPluginInstalled = isChromecastPluginInstalled,
             addToPlaylistOrQueueDialogViewModel = addToPlaylistOrQueueDialogViewModel
         )
     }

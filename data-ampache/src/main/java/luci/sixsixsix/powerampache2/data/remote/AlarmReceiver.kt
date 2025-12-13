@@ -31,6 +31,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.domain.MusicRepository
+import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import javax.inject.Inject
 
@@ -46,6 +47,8 @@ class AlarmReceiver: BroadcastReceiver() {
     @Inject
     lateinit var applicationCoroutineScope: CoroutineScope
 
+    @Inject
+    lateinit var sleepTimerEventBus: SleepTimerEventBus
 
     private var pingJob: Job? = null
     private var sleepTimerJob: Job? = null
@@ -57,8 +60,17 @@ class AlarmReceiver: BroadcastReceiver() {
             //L("AlarmReceiver.onReceive", intent?.action ?: "intent or action NULL")
 
             when(intent?.action) {
-                ACTION_SLEEP_TIMER ->
+                ACTION_SLEEP_TIMER -> {
                     L("aaaa SLEEP TIMER TRIGGERED ----***------***-----")
+                    // TODO: check if the emitted event is not too old?
+                    sleepTimerEventBus.emitSleepTimerExpired()
+//                    context?.applicationContext?.let { application ->
+//                        application.stopService(Intent().setClassName(
+//                            "luci.sixsixsix.powerampache2.player",
+//                            "luci.sixsixsix.powerampache2.player.SimpleMediaPlayer"
+//                        ))
+//                    }
+                }
                 ACTION_PING -> performPing()
             }
         } catch (e: Exception) {

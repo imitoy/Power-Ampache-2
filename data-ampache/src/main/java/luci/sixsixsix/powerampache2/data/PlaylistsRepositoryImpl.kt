@@ -324,6 +324,8 @@ class PlaylistsRepositoryImpl @Inject constructor(
         val songs = mutableListOf<Song>()
         var isFinished = false
         var limit = Constants.config.playlistSongsFetchLimit
+        if (limit > 5000) limit = 5000
+
         var offset = 0
         var lastException: MusicException? = null
         do {
@@ -355,8 +357,10 @@ class PlaylistsRepositoryImpl @Inject constructor(
                 isFinished = true
                 errorHandler.logError(nde)
             }
+            // TODO: also catch generic exception??
             offset += limit
             limit = (limit + 66) * 2
+            if (limit > 5000) limit = 5000
         } while (!isFinished)
 
         if (!shouldEmitSteps) {

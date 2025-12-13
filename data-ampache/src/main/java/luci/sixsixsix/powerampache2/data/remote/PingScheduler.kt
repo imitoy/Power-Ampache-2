@@ -26,8 +26,18 @@ import android.app.AlarmManager.INTERVAL_HOUR
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
+import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,8 +47,19 @@ const val REQUEST_CODE_SLEEP_TIMER = 6665419
 const val ACTION_SLEEP_TIMER = "luci.sixsixsix.powerampache2.alarm.action.SLEEP_TIMER"
 
 @Singleton
-class PingScheduler @Inject constructor(context: Context): AlarmScheduler {
+class PingScheduler @Inject constructor(
+    private val context: Context,
+    private val sharedPreferencesManager: SharedPreferencesManager,
+    private val applicationCoroutineScope: CoroutineScope
+): AlarmScheduler {
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
+
+    // avoids to many timer set consecutively when sliding the slider
+    private var sleepTimerSetJob: Job? = null
+
+    init {
+        sharedPreferencesManager.resetSleepTimer()
+    }
 
     private val pingPendingIntent = PendingIntent.getBroadcast(context,
         REQUEST_CODE_PING,
@@ -73,14 +94,35 @@ class PingScheduler @Inject constructor(context: Context): AlarmScheduler {
     override fun cancel() = alarmManager.cancel(pingPendingIntent).also { isPingScheduled = false }
 
     override fun scheduleSleepTimer(minutesInterval: Int) {
-        alarmManager.cancel(sleepTimerPendingIntent)
+        sleepTimerSetJob?.cancel()
+        sleepTimerSetJob = applicationCoroutineScope.launch {
+            delay(2000)
+            alarmManager.cancel(sleepTimerPendingIntent)
+            L("Sleep timer set")
 
-        val millis = (minutesInterval * 60) * 1000
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + millis,
-            sleepTimerPendingIntent
-        )
+            val millis = (minutesInterval * 60L) * 1000L
+            val now = System.currentTimeMillis()
+            val triggerAt = now + millis
+            if (triggerAt <= now || minutesInterval <= 0) return@launch
+
+            sharedPreferencesManager.sleepTimerEndTimestamp = triggerAt
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                    triggerAt,
+                    sleepTimerPendingIntent
+                )
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
+                    triggerAt,
+                    sleepTimerPendingIntent
+                )
+            }
+        }
     }
 
-    override fun cancelSleepTimer() = alarmManager.cancel(sleepTimerPendingIntent)
+    override fun cancelSleepTimer() {
+        sharedPreferencesManager.resetSleepTimer()
+        alarmManager.cancel(sleepTimerPendingIntent)
+    }
 }

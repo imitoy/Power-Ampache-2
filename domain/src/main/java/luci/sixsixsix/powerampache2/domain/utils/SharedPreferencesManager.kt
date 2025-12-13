@@ -39,6 +39,10 @@ interface SharedPreferencesManager {
 
     var introDialogContent: String
 
+    // sleep timer
+    var sleepTimerEndTimestamp: Long
+
     fun shouldShowIntroDialog(newContent: String ): Boolean
     fun resetBufferDefaults()
+    fun resetSleepTimer()
 }

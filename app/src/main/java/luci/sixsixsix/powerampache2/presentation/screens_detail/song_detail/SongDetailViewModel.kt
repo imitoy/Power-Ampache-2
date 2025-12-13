@@ -43,6 +43,7 @@ import luci.sixsixsix.powerampache2.domain.plugin.lyrics.getAvailableLyrics
 import luci.sixsixsix.powerampache2.domain.usecase.ServerInfoStateFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.artists.RecommendedArtistsUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.AlbumDataFromPluginUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsChromecastPluginInstalled
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsInfoPluginInstalled
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsLyricsPluginInstalledUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.LyricsFromPluginUseCase
@@ -60,7 +61,8 @@ class SongDetailViewModel @Inject constructor(
     private val getLyricsUrlFromPluginUseCase: LyricsFromPluginUseCase,
     private val isInfoPluginInstalled: IsInfoPluginInstalled,
     private val getSongInfoPluginUseCase: SongDataFromPluginUseCase,
-) : ViewModel() {
+    private val isChromecastPluginInstalled: IsChromecastPluginInstalled,
+    ) : ViewModel() {
     private val _recommendedArtistsStateFlow = MutableStateFlow<List<Artist>>(listOf())
     val recommendedArtistsStateFlow = _recommendedArtistsStateFlow.asStateFlow()
 
@@ -72,6 +74,9 @@ class SongDetailViewModel @Inject constructor(
 
     private val _pluginLyrics = MutableStateFlow("")
     val pluginLyrics = _pluginLyrics.asStateFlow()
+
+    private val _isChromecastPluginInstalled = MutableStateFlow(false)
+    val isChromecastPluginInstalledStateFlow = _isChromecastPluginInstalled.asStateFlow()
 
     private var songId: String = ""
     private var lyricsJob: Job? = null
@@ -107,6 +112,7 @@ class SongDetailViewModel @Inject constructor(
         viewModelScope.launch {
             getRecommendedArtists(song)
         }
+        _isChromecastPluginInstalled.value = isChromecastPluginInstalled()
     }
 
     private suspend fun getSongLyricsFromPlugin(song: Song) {

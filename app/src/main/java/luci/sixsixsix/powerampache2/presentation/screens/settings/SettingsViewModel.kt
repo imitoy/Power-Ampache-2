@@ -23,6 +23,7 @@ package luci.sixsixsix.powerampache2.presentation.screens.settings
 
 import android.content.Context
 import android.os.Build
+import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import luci.sixsixsix.powerampache2.common.RandomThemeBackgroundColour
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.getVersionInfoString
 import luci.sixsixsix.powerampache2.common.openLinkInBrowser
+import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
 import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
@@ -58,8 +60,13 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.LocalSettingsFlowUse
 import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SaveLocalSettingsUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleOfflineModeUseCase
+import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.system.exitProcess
@@ -78,7 +85,9 @@ class SettingsViewModel @Inject constructor(
     userFlowUseCase: UserFlowUseCase,
     serverInfoStateFlowUseCase: ServerInfoStateFlowUseCase,
     private val playlistManager: MusicPlaylistManager,
-    private val sharedPreferencesManager: SharedPreferencesManager
+    private val sharedPreferencesManager: SharedPreferencesManager,
+    private val alarmScheduler: AlarmScheduler,
+    private val sleepTimerEventBus: SleepTimerEventBus
 ) : ViewModel() {
 
     var state by savedStateHandle.saveable {
@@ -94,7 +103,9 @@ class SettingsViewModel @Inject constructor(
         useOkHttpExoplayer = sharedPreferencesManager.useOkHttpForExoPlayer,
         cacheSizeMb = sharedPreferencesManager.cacheSizeMb,
         prioritizeTimeOverSizeThresholds = sharedPreferencesManager.prioritizeTimeOverSizeThresholds,
-        targetBufferBytes = sharedPreferencesManager.targetBufferBytes
+        targetBufferBytes = sharedPreferencesManager.targetBufferBytes,
+        sleepTimerEndTime = getSleepTimerDescription(),// sharedPreferencesManager.sleepTimerEndTimestamp,
+        sleepTimerMins = 0
     )
 
     var playerSettingsStateFlow = MutableStateFlow(playerBuffersInitialState())
@@ -135,6 +146,12 @@ class SettingsViewModel @Inject constructor(
                     }
                     logs.add(0, it)
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            sleepTimerEventBus.sleepTimerEvents.collect {
+                resetSleepTimerValue()
             }
         }
     }
@@ -328,8 +345,57 @@ class SettingsViewModel @Inject constructor(
                         .copy(saveFavouriteSongAfterPlayback = event.isDownloadFavourite)
                 )
             }
+
+            SettingsEvent.OnResetSleepTimer -> {
+                alarmScheduler.cancelSleepTimer()
+                resetSleepTimerValue()
+            }
+            is SettingsEvent.OnSetSleepTimer -> {
+                alarmScheduler.scheduleSleepTimer(event.timerMins)
+                playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+                    sleepTimerMins = event.timerMins,
+                    sleepTimerEndTime = getSleepTimerDescription(
+                        System.currentTimeMillis() + (event.timerMins * 60L * 1000L)) //event.timerMins * 60 * 1000L
+                )
+            }
         }
     }
+
+    private fun resetSleepTimerValue() {
+        sharedPreferencesManager.resetSleepTimer()
+        playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+            sleepTimerEndTime = null
+        )
+    }
+
+    fun getSleepTimerDescription2(timeMillis: Long? = null): String? {
+        val ts = timeMillis ?: sharedPreferencesManager.sleepTimerEndTimestamp
+        if (ts == 0L || ts <= System.currentTimeMillis()) return null
+
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        val localTime = Instant.ofEpochMilli(ts)
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+
+        return "Will stop music at ${formatter.format(localTime)}"
+    }
+
+    fun getSleepTimerDescription(timeMillis: Long? = null): String? {
+        val ts = timeMillis ?: sharedPreferencesManager.sleepTimerEndTimestamp
+        if (ts == 0L || ts <= System.currentTimeMillis()) {
+            sharedPreferencesManager.resetSleepTimer()
+            return null
+        }
+
+// Determine user 24h preference
+        val pattern = if (DateFormat.is24HourFormat(application)) "HH:mm" else "h:mm a"
+
+        val formatter = DateTimeFormatter.ofPattern(pattern).withLocale(Locale.getDefault())
+        val localTime = Instant.ofEpochMilli(ts).atZone(ZoneId.systemDefault()).toLocalTime()
+
+        return formatter.format(localTime)
+    }
+
 
     private fun deleteAllDownloads() = viewModelScope.launch {
         deleteAllDownloadedSongs().collect { result -> when(result) {

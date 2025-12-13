@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "luci.sixsixsix.mrlog"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 28

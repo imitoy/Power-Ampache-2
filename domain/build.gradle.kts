@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "luci.sixsixsix.powerampache2.domain"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 28
