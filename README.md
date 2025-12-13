@@ -33,9 +33,19 @@ Power Ampache 2 is a complete Android Music Streaming App suite, presented in <a
 </p>
 <table>
     <tr>
+		<th>
+            <a target="_blank" href="https://matrix.to/#/%23power-ampache:matrix.org">
+    <img width="50" height="50" hspace="20" alt="Matrix" src="https://power.ampache.dev/matrix-96_gray.png">
+</a>
+        </th>
         <th>
             <a target="_blank" href="https://t.me/PowerAmpache">
-    <img width="50" height="50" hspace="20" alt="Telegram badge" src="https://power.ampache.dev/telegram_badge_666.png">
+    <img width="50" height="50" hspace="20" alt="Telegram" src="https://power.ampache.dev/telegram_badge_666.png">
+</a>
+        </th>
+		<th>
+            <a target="_blank" href="https://t.me/PowerAmpache2">
+    <img width="50" height="50" hspace="20" alt="Telegram Chat" src="https://power.ampache.dev/telegram_badge_666_gray.png">
 </a>
         </th>
         <th>
