@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
@@ -74,11 +75,14 @@ import luci.sixsixsix.powerampache2.presentation.common.DownloadFullVersionButto
 import luci.sixsixsix.powerampache2.presentation.common.ErrorView
 import luci.sixsixsix.powerampache2.presentation.screens.main.AuthEvent
 import luci.sixsixsix.powerampache2.presentation.screens.main.AuthViewModel
+import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoadingScreenOfflineSwitch
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoginBottomDrawer
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoginButton
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoginDialog
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.SignUpBottomDrawer
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.SignUpDialog
+import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsEvent
+import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsViewModel
 import luci.sixsixsix.powerampache2.ui.theme.onBackgroundDark
 import luci.sixsixsix.powerampache2.ui.theme.surfaceDark
 import kotlin.system.exitProcess
@@ -87,11 +91,14 @@ import kotlin.system.exitProcess
 @Destination(start = false)
 fun LoginScreen(
     viewModel: AuthViewModel,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.state
     val error by viewModel.messagesStateFlow.collectAsState()
     val isAllowAllCerts by viewModel.isAllowAllCerts.collectAsState()
+    val user by viewModel.userStateFlow.collectAsState()
+    val offlineModeState by settingsViewModel.offlineModeStateFlow.collectAsState()
 
     LoginScreenContent(
         username = state.username,
@@ -99,11 +106,16 @@ fun LoginScreen(
         url = state.url,
         authToken = state.authToken,
         error = error,
+        offlineModeSwitchVisible = user != null,
+        offlineModeEnabled = offlineModeState,
         onEvent = {
             viewModel.onEvent(it)
         },
         modifier = modifier,
-        isAllowAllCerts = isAllowAllCerts
+        isAllowAllCerts = isAllowAllCerts,
+        onOfflineSwitchToggle = {
+            settingsViewModel.onEvent(SettingsEvent.OnOfflineToggle)
+        }
     )
 }
 
@@ -116,7 +128,10 @@ fun LoginScreenContent(
     authToken: String,
     error: String,
     isAllowAllCerts: Boolean,
+    offlineModeSwitchVisible: Boolean,
+    offlineModeEnabled: Boolean,
     onEvent: (AuthEvent) -> Unit,
+    onOfflineSwitchToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -173,6 +188,16 @@ fun LoginScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
+            )
+        }
+
+        if (offlineModeSwitchVisible) {
+            LoadingScreenOfflineSwitch(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .wrapContentSize(),
+                offlineModeEnabled = offlineModeEnabled,
+                onSwitchToggle = onOfflineSwitchToggle
             )
         }
 
@@ -418,6 +443,9 @@ fun LoginScreenPreview() {
         //isLoginSheetOpen = true,
         //isSignUpSheetOpen = false,
         modifier = Modifier.fillMaxSize(),
-        isAllowAllCerts = true
+        isAllowAllCerts = true,
+        offlineModeEnabled = false,
+        onOfflineSwitchToggle = {},
+        offlineModeSwitchVisible = true
     )
 }

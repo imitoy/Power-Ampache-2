@@ -123,6 +123,8 @@ data class Pa2ConfigDto(
     val removeDuplicateAlbums: Boolean? = null,
     @SerializedName("useIncrementalLimitForAlbums")
     val useIncrementalLimitForAlbums: Boolean? = null,
+    @SerializedName("featureString")
+    val featureString: String? = null,
 
     @SerializedName("showSettingsExportDbButton")
     val showSettingsExportDbButton: Boolean? = null
@@ -162,6 +164,7 @@ fun Pa2ConfigDto.toPa2Config(configProvider: ConfigProvider) = Pa2Config(
     useIncrementalLimitForAlbums = useIncrementalLimitForAlbums ?: configProvider.USE_INCREMENTAL_LIMIT_ALBUMS,
     removeDuplicateSongs = removeDuplicateSongs ?: REMOVE_DUPLICATE_SONGS,
     removeDuplicateAlbums = removeDuplicateAlbums ?: REMOVE_DUPLICATE_ALBUMS,
+    featureString = featureString ?: "",
     queueSizeLimit = queueSizeLimit ?: QUEUE_SIZE_LIMIT,
     hideAlbumsRatedBelow = hideAlbumsRatedBelow ?: 0.0f,
     showSettingsExportDbButton = showSettingsExportDbButton == true

@@ -23,15 +23,9 @@ package luci.sixsixsix.powerampache2.presentation.screens.main
 
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,15 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.delay
-import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants.LOGIN_SCREEN_TIMEOUT
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.LoggedInScreen
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.LoginScreen
+import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoadingScreenOfflineSwitch
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.LoadingShimmerScreen
 import luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel.MainViewModel
 import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsEvent
@@ -97,7 +89,7 @@ fun MainScreen(
             loginScreenVisible = false
         } else {
             if (loginScreenVisible && shouldShowLoginScreen) {
-                LoginScreen(viewModel = authViewModel)
+                LoginScreen(viewModel = authViewModel, settingsViewModel = settingsViewModel)
             }
         }
     }
@@ -125,24 +117,3 @@ private fun LoadingScreenWithOfflineSwitch(
         }
         LoadingShimmerScreen()
     }
-
-
-@Composable
-private fun LoadingScreenOfflineSwitch(
-    modifier: Modifier,
-    offlineModeEnabled: Boolean,
-    onSwitchToggle: (newValue: Boolean) -> Unit
-) {
-    Row(modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically) {
-        Text(text = stringResource(id = R.string.offlineMode_switch_title),
-            fontSize = 16.sp)
-        Spacer(modifier = Modifier.width(6.dp))
-        Switch(
-            checked = offlineModeEnabled,
-            onCheckedChange = onSwitchToggle,
-            enabled = true
-        )
-    }
-}

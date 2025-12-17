@@ -264,7 +264,9 @@
     <!-- do not translate, this is a reference -->
     <string name="bmac_contentDescription" translatable="false">@string/bmac_btn_text</string>
     <string name="patreon_contentDescription" translatable="false">Patreon</string>
+    <string name="about_matrix" translatable="false">Matrix Space</string>
     <string name="about_telegram" translatable="false">Telegram</string>
+    <string name="about_telegram_chat" translatable="false">Telegram Chatroom</string>
     <string name="about_mastodon" translatable="false">Mastodon</string>
     <string name="about_github" translatable="false">Github</string>
     <string name="telegram_contentDescription" translatable="false">@string/about_telegram</string>

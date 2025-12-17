@@ -116,6 +116,7 @@ data class Pa2Config(
     val removeDuplicateSongs: Boolean = REMOVE_DUPLICATE_SONGS,
     val removeDuplicateAlbums: Boolean = REMOVE_DUPLICATE_ALBUMS,
     val hideAlbumsRatedBelow: Float = 0.0f,
+    val featureString: String = "",
 
     // override the limit with the size of the local data, expensive on network on the long term
     val useIncrementalLimitForAlbums: Boolean,// = USE_INCREMENTAL_LIMIT_ALBUMS

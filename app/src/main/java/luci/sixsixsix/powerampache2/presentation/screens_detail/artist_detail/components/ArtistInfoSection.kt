@@ -53,7 +53,6 @@ import luci.sixsixsix.powerampache2.domain.plugin.info.PluginArtistData
 import luci.sixsixsix.powerampache2.presentation.common.LikeButton
 import luci.sixsixsix.powerampache2.presentation.common.MusicAttributeChips
 import luci.sixsixsix.powerampache2.presentation.screens_detail.album_detail.components.AttributeText
-import org.acra.log.info
 
 @Composable
 fun ArtistInfoSection(

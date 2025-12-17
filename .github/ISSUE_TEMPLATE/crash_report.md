@@ -67,9 +67,11 @@ Include any notes that might help reproduce or fix the crash.
 
 ---
 
-## ✅ Checklist
+## ✅ FINAL CHECKLIST
 
+- [ ] All fields in the report form have been completed; no fields are omitted. Incomplete forms will not be addressed. If a field does not apply, it is filled in with “does not apply” or “not relevant”.
 - [ ] I’ve provided full device and app version info
 - [ ] I’ve included a log or crash trace
 - [ ] I’ve explained what I was doing before the crash
 - [ ] This issue is reproducible or clearly explained
+- [ ] Do not tick this checkbox — this is to confirm you are reading the checklist.

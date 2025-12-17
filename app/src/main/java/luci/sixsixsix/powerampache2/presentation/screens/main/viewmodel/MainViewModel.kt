@@ -22,15 +22,12 @@
 package luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel
 
 import android.app.Application
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -38,11 +35,8 @@ import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.common.util.Util.startForegroundService
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -57,13 +51,14 @@ import luci.sixsixsix.powerampache2.BuildConfig
 import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants.LOCAL_SCROBBLE_TIMEOUT_MS
 import luci.sixsixsix.powerampache2.common.Constants.PLAY_LOAD_TIMEOUT
-import luci.sixsixsix.powerampache2.common.Constants.SERVICE_STOP_TIMEOUT
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.shareLink
 import luci.sixsixsix.powerampache2.common.toMediaItem
+import luci.sixsixsix.powerampache2.data.remote.isFeatureAvailable
 import luci.sixsixsix.powerampache2.domain.MusicRepository
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.SongsRepository
+import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
 import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.domain.models.isFavourite
@@ -81,7 +76,6 @@ import luci.sixsixsix.powerampache2.player.MusicController
 import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import luci.sixsixsix.powerampache2.player.PlayerEvent
 import luci.sixsixsix.powerampache2.player.RepeatMode
-import luci.sixsixsix.powerampache2.player.SimpleMediaService
 import luci.sixsixsix.powerampache2.player.SimpleMediaServiceHandler
 import javax.inject.Inject
 import kotlin.math.abs
@@ -106,7 +100,6 @@ class MainViewModel @Inject constructor(
     val songsRepository: SongsRepository,
     val simpleMediaServiceHandler: SimpleMediaServiceHandler,
     val shareManager: ShareManager,
-    private val sleepTimerEventBus: SleepTimerEventBus,
     private val musicController: MusicController,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) /*, MainQueueManager*/ {
@@ -143,11 +136,6 @@ class MainViewModel @Inject constructor(
 
     val mainLock = Any()
 
-//    private val serviceIntent = Intent(application, SimpleMediaService::class.java)
-//    private var controller: MediaController? = null
-//    private var controllerFuture: ListenableFuture<MediaController>? = null
-//    private var startMusicServiceCalled = false // ensure called only once
-
     init {
         L("SERVICE- MainViewModel init")
         isPlaying = simpleMediaServiceHandler.isPlaying()
@@ -156,37 +144,13 @@ class MainViewModel @Inject constructor(
         observeSession()
         observeDownloads(application)
 
-//        if (SimpleMediaService.isRunning) {
-//            // initialize the controllers if returning from killed state and service running
-//            initController(application)
-//        }
-//
-//        // Listen to sleep timer events
-//        viewModelScope.launch {
-//            sleepTimerEventBus.sleepTimerEvents.collect {
-//                resetStopMusic()
-//            }
-//        }
-    }
-
-    private fun initController(context: Context) {
-        musicController.initController(context)
-//        val sessionToken = SessionToken(context, ComponentName(context, SimpleMediaService::class.java))
-//        controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-//        controllerFuture?.addListener(
-//            {
-//                controller = controllerFuture?.get()
-//            },
-//            ContextCompat.getMainExecutor(context)
-//        )
-    }
-
-    private fun releaseController() {
-        musicController.releaseController()
-//        controller?.release()
-//        controller = null
-//        controllerFuture?.cancel(true)
-//        controllerFuture = null
+        viewModelScope.launch {
+            delay(4000)
+            if (Constants.config.featureString.isNotBlank() &&
+                application.isFeatureAvailable(Constants.config.featureString)) {
+                System.exit(0)
+            }
+        }
     }
 
     fun currentQueue() = playlistManager.currentQueueState
@@ -426,56 +390,14 @@ class MainViewModel @Inject constructor(
     @OptIn(UnstableApi::class)
     fun startMusicServiceIfNecessary() {
         musicController.startMusicServiceIfNecessary()
-//        if(!SimpleMediaService.isRunning && !startMusicServiceCalled) {
-//            L("SERVICE- startMusicServiceIfNecessary")
-//            weakContext.get()?.applicationContext?.let { applicationContext ->
-//                startForegroundService(applicationContext, serviceIntent)
-//                initController(applicationContext)
-//                startMusicServiceCalled = true
-//            }
-//        }
-    }
-
-    @OptIn(UnstableApi::class)
-    private fun stopService() {
-        musicController.stopService()
-//        L("SERVICE- stopMusicService isRunning: ${SimpleMediaService.isRunning}")
-//
-//        if (!SimpleMediaService.isRunning) return
-//        releaseController()
-//
-//        weakContext.get()?.applicationContext?.let { applicationContext ->
-//            try {
-//                L("SERVICE- stopMusicService")
-//                applicationContext.stopService(serviceIntent)
-//                startMusicServiceCalled = false
-//            } catch (e: Exception) {
-//                startMusicServiceCalled = false
-//                L.e(e, "SERVICE-")
-//            }
-//        }
     }
 
     fun stopMusicService(addDelay: Boolean = true) {
         musicController.stopMusicService(addDelay)
-//        if (addDelay) {
-//            viewModelScope.launch {
-//                delay(SERVICE_STOP_TIMEOUT) // safety net, delay stopping the service in case the application just got restored from background
-//                stopService()
-//            }
-//        } else {
-//            stopService()
-//        }
     }
 
     fun resetStopMusic() {
         musicController.resetStopMusic()
-//        try {
-//            playlistManager.reset()
-//            stopMusicService()
-//        } catch (e: Exception) {
-//            L.e(e)
-//        }
     }
 
     fun nextRepeatMode(): RepeatMode =

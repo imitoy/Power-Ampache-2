@@ -75,3 +75,14 @@ Attach any screenshots, GIFs, or recordings that show the issue.
 
 Paste the relevant portion of **logcat output** here, or upload as a `.txt` file.
 
+
+## ✅ FINAL CHECKLIST
+
+- [ ] All fields in the report form have been completed; no fields are omitted. Incomplete forms will not be addressed. If a field does not apply, it is filled in with “does not apply” or “not relevant”.
+- [ ] The report is clear, descriptive, and easy to understand.
+- [ ] Steps to reproduce the issue are provided and complete.
+- [ ] Expected behavior and actual behavior are clearly described.
+- [ ] Relevant logs, screenshots, or error messages are included (if applicable).
+- [ ] The issue has been checked against existing issues to avoid duplicates.
+- [ ] Do not tick this checkbox — this is to confirm you are reading the checklist.
+
