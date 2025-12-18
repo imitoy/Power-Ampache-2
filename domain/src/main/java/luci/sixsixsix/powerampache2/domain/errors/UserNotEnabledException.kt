@@ -21,8 +21,5 @@
  */
 package luci.sixsixsix.powerampache2.domain.errors
 
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.util.UnstableApi
- @UnstableApi
 class UserNotEnabledException(message: String, error: Throwable, code: Int):
-     PlaybackException(message, error, code)
+     Exception("$code - Player Exception. User not enabled: $message", error)

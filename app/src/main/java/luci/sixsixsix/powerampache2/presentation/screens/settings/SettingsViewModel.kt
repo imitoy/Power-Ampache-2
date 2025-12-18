@@ -50,6 +50,7 @@ import luci.sixsixsix.powerampache2.common.getVersionInfoString
 import luci.sixsixsix.powerampache2.common.openLinkInBrowser
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
 import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
 import luci.sixsixsix.powerampache2.domain.usecase.ServerInfoStateFlowUseCase
@@ -62,7 +63,6 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.SaveLocalSettingsUse
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleOfflineModeUseCase
 import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -84,7 +84,7 @@ class SettingsViewModel @Inject constructor(
     offlineModeFlowUseCase: OfflineModeFlowUseCase,
     userFlowUseCase: UserFlowUseCase,
     serverInfoStateFlowUseCase: ServerInfoStateFlowUseCase,
-    private val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler,
     private val sharedPreferencesManager: SharedPreferencesManager,
     private val alarmScheduler: AlarmScheduler,
     private val sleepTimerEventBus: SleepTimerEventBus
@@ -113,7 +113,7 @@ class SettingsViewModel @Inject constructor(
     val logs by mutableStateOf(mutableListOf<String>())
 
     val offlineModeStateFlow = offlineModeFlowUseCase().map {
-            playlistManager.updateUserMessage("")
+        errorHandler.updateUserMessage("")
             it
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
@@ -128,7 +128,7 @@ class SettingsViewModel @Inject constructor(
     init {
         // collect all the logs
         viewModelScope.launch {
-            playlistManager.errorLogMessageState.collect { errorState ->
+            errorHandler.errorLogMessageState.collect { errorState ->
                 // refresh config every time since initialize() might be late.
                 try {
                     logs.remove(getConfigPrettyPrint())

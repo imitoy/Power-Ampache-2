@@ -10,11 +10,13 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/CrashReportHandling" />
             <option value="$PROJECT_DIR$/MrLog" />
             <option value="$PROJECT_DIR$/PowerAmpache2Theme" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/data-ampache" />
             <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/errorlogger" />
           </set>
         </option>
       </GradleProjectSettings>

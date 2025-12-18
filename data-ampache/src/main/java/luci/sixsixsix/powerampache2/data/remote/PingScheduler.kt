@@ -128,20 +128,3 @@ class PingScheduler @Inject constructor(
         alarmManager.cancel(sleepTimerPendingIntent)
     }
 }
-
-fun Context.isFeatureAvailable(feature: String): Boolean {
-    try {
-        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.getPackageInfo(
-                packageName,
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_CONFIGURATIONS.toLong())
-            )
-        } else {
-            packageManager.getPackageInfo(packageName, PackageManager.GET_CONFIGURATIONS)
-        }
-
-        return packageInfo.reqFeatures?.any { it.name == feature } ?: false
-    } catch (e: Exception) {
-        return false
-    }
-} // applicationContext.packageManager.hasSystemFeature(feature)

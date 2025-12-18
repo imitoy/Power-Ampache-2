@@ -51,6 +51,7 @@ import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.shareLink
 import luci.sixsixsix.powerampache2.domain.PlaylistsRepository
 import luci.sixsixsix.powerampache2.domain.SongsRepository
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.FlaggedPlaylist
 import luci.sixsixsix.powerampache2.domain.models.FrequentPlaylist
 import luci.sixsixsix.powerampache2.domain.models.HighestPlaylist
@@ -68,11 +69,8 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.LocalSettingsFlowUse
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleGlobalShuffleUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.songs.IsSongAvailableOfflineUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.songs.OfflineSongsFlow
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import luci.sixsixsix.powerampache2.presentation.common.songitem.SongWrapper
 import javax.inject.Inject
-import kotlin.collections.map
-import kotlin.collections.toHashSet
 
 @HiltViewModel
 class PlaylistDetailViewModel @Inject constructor(
@@ -86,7 +84,7 @@ class PlaylistDetailViewModel @Inject constructor(
     private val playlistsRepository: PlaylistsRepository,
     private val songsFromPlaylistUseCase: SongsFromPlaylistUseCase,
     private val changeSortModeUseCase: ChangeSortModeUseCase,
-    private val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler,
     private val offlineSongsFlow: OfflineSongsFlow,
     userFlowUseCase: UserFlowUseCase
 ) : ViewModel() {
@@ -188,7 +186,7 @@ class PlaylistDetailViewModel @Inject constructor(
                 try {
                     state = state.copy(isGlobalShuffleOn = toggleGlobalShuffle())
                 } catch (e: Exception) {
-                    playlistManager.updateErrorLogMessage(e.stackTraceToString())
+                    errorHandler.updateErrorLogMessage(e.stackTraceToString())
                 }
             }
             is PlaylistDetailEvent.OnRatePlaylist -> viewModelScope.launch {

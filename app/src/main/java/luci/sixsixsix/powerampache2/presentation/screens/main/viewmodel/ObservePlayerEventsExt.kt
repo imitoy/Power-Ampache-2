@@ -79,6 +79,7 @@ fun MainViewModel.observePlayerEvents() {
                         // if count>30 before 60s stop service
                         if (++playbackErrorCount > 30) {
                             playlistManager.reset()
+                            errorHandler.resetMessages()
                             stopMusicService()
                         }
                         // restart the timer at every error, if no error in the next 30s, reset the

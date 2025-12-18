@@ -22,7 +22,6 @@
 package luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,7 +35,6 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -52,14 +50,14 @@ import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants.LOCAL_SCROBBLE_TIMEOUT_MS
 import luci.sixsixsix.powerampache2.common.Constants.PLAY_LOAD_TIMEOUT
 import luci.sixsixsix.powerampache2.common.Resource
+import luci.sixsixsix.powerampache2.common.isFeatureAvailable
 import luci.sixsixsix.powerampache2.common.shareLink
 import luci.sixsixsix.powerampache2.common.toMediaItem
-import luci.sixsixsix.powerampache2.data.remote.isFeatureAvailable
 import luci.sixsixsix.powerampache2.domain.MusicRepository
-import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.SongsRepository
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.domain.models.isFavourite
 import luci.sixsixsix.powerampache2.domain.usecase.DownloadSongUseCase
@@ -100,12 +98,13 @@ class MainViewModel @Inject constructor(
     val songsRepository: SongsRepository,
     val simpleMediaServiceHandler: SimpleMediaServiceHandler,
     val shareManager: ShareManager,
+    val errorHandler: ErrorHandler,
     private val musicController: MusicController,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) /*, MainQueueManager*/ {
     var state by savedStateHandle.saveable { mutableStateOf(MainState()) }
 
-    val notificationQueueEmptyState = playlistManager.notificationsListStateFlow
+    val notificationQueueEmptyState = errorHandler.notificationsListStateFlow
         .map { it.isEmpty() }
         .distinctUntilChanged()
 
@@ -145,7 +144,7 @@ class MainViewModel @Inject constructor(
         observeDownloads(application)
 
         viewModelScope.launch {
-            delay(4000)
+            delay(6000)
             if (Constants.config.featureString.isNotBlank() &&
                 application.isFeatureAvailable(Constants.config.featureString)) {
                 System.exit(0)
@@ -306,11 +305,11 @@ class MainViewModel @Inject constructor(
                 is Resource.Success -> {
                     result.data?.let {
                         // song deleted
-                        playlistManager.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song, song.name))
+                        errorHandler.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song, song.name))
                     }
                 }
                 is Resource.Error ->
-                    playlistManager.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song_error, song.name))
+                    errorHandler.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song_error, song.name))
                 is Resource.Loading -> {}
             }
         }
@@ -325,22 +324,23 @@ class MainViewModel @Inject constructor(
                         result.data?.let { ++count }
                     }
                     is Resource.Error ->
-                        playlistManager.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song_error, song.name))
+                        errorHandler.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_song_error, song.name))
                     is Resource.Loading -> {}
                 }
             }
         }
-        playlistManager.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_songs, count))
+        errorHandler.updateUserMessage(weakContext.get()?.getString(R.string.downloaded_delete_snackbar_songs, count))
     }
 
     fun logout() {
         viewModelScope.launch {
             if (isOfflineModeEnabledUseCase()) {
                 L(" isOfflineModeEnabled")
-                playlistManager.updateUserMessage(weakContext.get()?.resources?.getString(R.string.logout_offline_warning))
+                errorHandler.updateUserMessage(weakContext.get()?.resources?.getString(R.string.logout_offline_warning))
             } else {
                 L(" Logout")
                 playlistManager.reset()
+                errorHandler.resetMessages()
                 simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Stop)
                 stopMusicService()
                 musicRepository.logout().collect { result ->
@@ -448,7 +448,7 @@ class MainViewModel @Inject constructor(
     fun logToErrorLogs(mess: String) {
         L(mess)
         if (BuildConfig.DEBUG)
-            playlistManager.updateErrorLogMessage(mess)
+            errorHandler.updateErrorLogMessage(mess)
     }
 
     @OptIn(UnstableApi::class)

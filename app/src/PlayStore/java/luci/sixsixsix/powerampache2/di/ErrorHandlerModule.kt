@@ -21,25 +21,10 @@
  */
 package luci.sixsixsix.powerampache2.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import luci.sixsixsix.powerampache2.EmailErrorReportHelper
-import luci.sixsixsix.powerampache2.data.ErrorHandlerImpl
 import luci.sixsixsix.powerampache2.CrashReportHelper
-import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
-import javax.inject.Singleton
+import luci.sixsixsix.powerampache2.EmailErrorReportHelper
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class ErrorHandlerModule {
-    @Binds
-    @Singleton
-    abstract fun bindErrorHandler(
-        errorHandlerImpl: ErrorHandlerImpl
-    ): ErrorHandler
-
+class ErrorHandlerModule {
     companion object {
         /**
          * this would crash if provided by dagger because it needs to go in `attachBaseContext`

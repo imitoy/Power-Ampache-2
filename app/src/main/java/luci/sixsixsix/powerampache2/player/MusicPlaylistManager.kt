@@ -26,30 +26,13 @@ import kotlinx.coroutines.flow.StateFlow
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.domain.common.reduceList
 import luci.sixsixsix.powerampache2.domain.models.Song
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
-
-data class ErrorLogMessageState(var errorMessage: String? = null)
-data class LogMessageState(
-    var logMessage: String? = null,
-    val date: LocalDateTime = LocalDateTime.now(),
-    val count: Int? = null
-)
 
 @Singleton
 class MusicPlaylistManager @Inject constructor() {
     private val _currentSongState = MutableStateFlow<Song?>(null)
     val currentSongState: StateFlow<Song?> = _currentSongState //val currentSong = _currentSong.asStateFlow()
-
-    private val _logMessageUserReadableState = MutableStateFlow(LogMessageState())
-    val logMessageUserReadableState: StateFlow<LogMessageState> = _logMessageUserReadableState
-    var notificationsListStateFlow: MutableStateFlow<List<LogMessageState>> = MutableStateFlow(listOf())
-        private set
-
-    private val _errorLogMessageState = MutableStateFlow(ErrorLogMessageState())
-    val errorLogMessageState: StateFlow<ErrorLogMessageState> = _errorLogMessageState
 
     private val _currentSearchQuery = MutableStateFlow("")
     val currentSearchQuery: StateFlow<String> = _currentSearchQuery
@@ -59,44 +42,6 @@ class MusicPlaylistManager @Inject constructor() {
 
     private val _downloadedSongFlow = MutableStateFlow<Song?>(null)
     val downloadedSongFlow: StateFlow<Song?> = _downloadedSongFlow
-
-    fun updateUserMessage(logMessage: String?) {
-        L("MusicPlaylistManager updateUserMessage", logMessage)
-        _logMessageUserReadableState.value = LogMessageState(logMessage = logMessage)
-
-        // add to the list of notifications
-        logMessage?.let { lm ->
-            if (lm.isNotBlank()) {
-                // if already there remove it
-                val messages = ArrayList<LogMessageState>(notificationsListStateFlow.value)
-                // remove if already present
-                var count = 0
-                messages.map { it.logMessage }.indexOf(lm).apply {
-                    if (this > -1) {
-                        count = messages[this].count ?: 0
-                        messages.removeAt(this)
-                    }
-                }
-
-                notificationsListStateFlow.value = messages.apply {
-                        add(0, LogMessageState(logMessage = lm, count = ++count))
-                    }
-            }
-        }
-
-        // also log for debug reasons
-        updateErrorLogMessage(logMessage)
-    }
-
-    /**
-     * updates the error log in settings
-     */
-    fun updateErrorLogMessage(logMessage: String?) {
-        L("MusicPlaylistManager updateErrorLogMessage", logMessage)
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val current = LocalDateTime.now().format(formatter)
-        _errorLogMessageState.value = ErrorLogMessageState(errorMessage = "$current\n$logMessage")
-    }
 
     fun updateDownloadedSong(song: Song?) {
         _downloadedSongFlow.value = song
@@ -275,7 +220,5 @@ class MusicPlaylistManager @Inject constructor() {
         _currentSongState.value = null
         updateSearchQuery(searchQuery= "")
         replaceCurrentQueue(listOf())
-        updateUserMessage(logMessage = null)
-        updateErrorLogMessage(logMessage = null)
     }
 }

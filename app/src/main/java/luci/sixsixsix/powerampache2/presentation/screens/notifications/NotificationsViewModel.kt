@@ -23,19 +23,20 @@ package luci.sixsixsix.powerampache2.presentation.screens.notifications
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import javax.inject.Inject
 
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
-    private val playlistManager: MusicPlaylistManager
+    private val errorHandler: ErrorHandler
 ) : ViewModel() {
-    var logListStateFlow = playlistManager.notificationsListStateFlow
+    var logListStateFlow = errorHandler.notificationsListStateFlow
 
     fun onEvent(event: NotificationsScreenEvent) {
         when(event) {
             is NotificationsScreenEvent.OnClearNotifications -> {
-                playlistManager.notificationsListStateFlow.value = listOf()
+                errorHandler.notificationsListStateFlow.value = listOf()
             }
         }
     }

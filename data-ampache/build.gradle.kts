@@ -42,6 +42,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":errorlogger"))
     implementation(project(":MrLog"))
 
     implementation(libs.androidx.core.ktx)

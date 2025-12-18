@@ -22,12 +22,14 @@
 package luci.sixsixsix.powerampache2.data
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import luci.sixsixsix.mrlog.L
@@ -65,10 +67,11 @@ abstract class BaseAmpacheRepository(
 ) {
     protected val dao = db.dao
 
-    val settingsLiveData: LiveData<LocalSettings?>
+    val settingsLiveData: Flow<LocalSettings?>
         get() = dao.settingsLiveData().distinctUntilChanged().map {
             it?.toLocalSettings()
-        }
+        }.asFlow()
+
 
     val offlineModeFlow: Flow<Boolean>
         get() =  dao.offlineModeEnabledFlow()

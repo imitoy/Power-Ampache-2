@@ -82,7 +82,7 @@ fun MainViewModel.handleEvent(event: MainEvent, context: Context) {
             addSongsToQueueAndPlayShuffled(event.songList)
 
         MainEvent.OnDismissUserMessage ->
-            playlistManager.updateUserMessage("")
+            errorHandler.updateUserMessage("")
         MainEvent.OnLogout ->
             logout()
         is MainEvent.OnAddSongToQueueNext ->
@@ -146,7 +146,7 @@ fun MainViewModel.handleEvent(event: MainEvent, context: Context) {
             try {
                 context.exportSong(event.song, songsRepository.getSongUri(event.song))
             } catch (e: Exception) {
-                playlistManager.updateErrorLogMessage(e.stackTraceToString())
+                errorHandler.updateErrorLogMessage(e.stackTraceToString())
             }
         }
 

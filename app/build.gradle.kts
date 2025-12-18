@@ -43,7 +43,6 @@ android {
     val dogmazicToken = properties.getProperty("DOGMAZIC_TOKEN")
     val dogmazicUser = properties.getProperty("DOGMAZIC_USER")
     val dogmazicEmail = properties.getProperty("DOGMAZIC_EMAIL")
-    val errorLogUrl = properties.getProperty("URL_ERROR_LOG")
     val localDevUser = properties.getProperty("LOCAL_DEV_USER")
     val localDevPass = properties.getProperty("LOCAL_DEV_PASSWORD")
     val localDevUrl = properties.getProperty("LOCAL_DEVELOPMENT_URL")
@@ -349,17 +348,10 @@ dependencies {
     // JSON serialization
     implementation(libs.gson)
 
-    // --- Room --- //
-//    implementation(libs.room.runtime)
-//    ksp(libs.room.compiler)
-//    // Kotlin Extensions and Coroutines support for Room
-//    implementation(libs.room.ktx)
-
-    // ERROR REPORT
-    //implementation(libs.acra.mail)
-    "GithubImplementation"(libs.acra.mail)
-    "PlayStoreImplementation"(libs.acra.mail)
-    "PlayStoreFreeImplementation"(libs.acra.mail)
+    // ERROR REPORT, Fdroid is excluded because ACRA is reported as a tracker
+    "GithubImplementation"(project(":CrashReportHandling"))
+    "PlayStoreImplementation"(project(":CrashReportHandling"))
+    "PlayStoreFreeImplementation"(project(":CrashReportHandling"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

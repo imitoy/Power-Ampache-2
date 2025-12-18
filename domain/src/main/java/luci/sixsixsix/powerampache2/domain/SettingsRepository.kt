@@ -28,7 +28,7 @@ import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
 import luci.sixsixsix.powerampache2.domain.models.settings.SortMode
 
 interface SettingsRepository {
-    val settingsLiveData: LiveData<LocalSettings?>
+    val settingsLiveData: Flow<LocalSettings?>
     val offlineModeFlow: Flow<Boolean>
 
     suspend fun getLocalSettings(username: String? = null): LocalSettings

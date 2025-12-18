@@ -32,13 +32,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants
 import luci.sixsixsix.powerampache2.common.Constants.DONATION_BITCOIN_ADDRESS
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import javax.inject.Inject
 
 @HiltViewModel
 class DonateViewModel @Inject constructor(
     private val application: Application,
-    private val playlistManager: MusicPlaylistManager
+    private val errorHandler: ErrorHandler
 ) : AndroidViewModel(application) {
 
     fun donateBtc() {
@@ -55,7 +55,7 @@ class DonateViewModel @Inject constructor(
                     DONATION_BITCOIN_ADDRESS
                 ))
             }
-            playlistManager.updateUserMessage("No Bitcoin Wallet found on this device, BTC address copied to clipboard")
+            errorHandler.updateUserMessage("No Bitcoin Wallet found on this device, BTC address copied to clipboard")
         }
     }
 

@@ -77,7 +77,7 @@ internal fun MainViewModel.observeDownloads(application: Context) {
                                     emittedDownloads = emittedDownloads.toMutableList().apply { add(songId) }
                                     songsRepository.getDownloadedSongById(songId)?.let { finishedSong ->
                                         playlistManager.updateDownloadedSong(finishedSong)
-                                        playlistManager.updateUserMessage(
+                                        errorHandler.updateUserMessage(
                                             application.getString(R.string.downloaded_snackbar_title, finishedSong.name)
                                         ) //"${finishedSong.name} downloaded")
                                         state = state.copy(isDownloading = false)

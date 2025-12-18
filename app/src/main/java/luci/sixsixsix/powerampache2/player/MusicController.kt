@@ -23,6 +23,7 @@ import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.common.Constants.SERVICE_STOP_TIMEOUT
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +33,8 @@ class MusicController @Inject constructor(
     val weakContext: WeakContext,
     private val sleepTimerEventBus: SleepTimerEventBus,
     private val applicationCoroutineScope: CoroutineScope,
-    val playlistManager: MusicPlaylistManager
+    val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler
 ) {
     private val serviceIntent = Intent(context, SimpleMediaService::class.java)
     private var controller: MediaController? = null
@@ -128,6 +130,7 @@ class MusicController @Inject constructor(
     fun resetStopMusic() {
         try {
             playlistManager.reset()
+            errorHandler.resetMessages()
             stopMusicService()
         } catch (e: Exception) {
             L.e(e)
