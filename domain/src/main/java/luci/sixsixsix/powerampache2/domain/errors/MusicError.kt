@@ -27,8 +27,14 @@ data class MusicError(
     val errorAction: String,
     val errorCode: String,
     val errorMessage: String,
-    val errorType: String
+    val errorType: String,
+    val extra: HashMap<String, String> = hashMapOf()
 ) {
+    fun addExtra(key: String, value: String): MusicError {
+        extra[key] = value
+        return this
+    }
+
     fun toJson(): String = Gson().toJson(this)
 
     override fun toString(): String = try {

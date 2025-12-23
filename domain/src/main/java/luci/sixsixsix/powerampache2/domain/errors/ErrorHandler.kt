@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.domain.errors.models.ErrorLogMessageState
 import luci.sixsixsix.powerampache2.domain.errors.models.LogMessageState
+import luci.sixsixsix.powerampache2.domain.models.ServerInfo
 
 interface ErrorHandler {
     val logMessageUserReadableState: StateFlow<LogMessageState>
@@ -37,6 +38,11 @@ interface ErrorHandler {
     var notificationsListStateFlow: MutableStateFlow<List<LogMessageState>>
 
     val errorLogMessageState: StateFlow<ErrorLogMessageState>
+
+    /**
+     * server info for error reporting
+     */
+    var serverInfo: ServerInfo
 
     /**
      * User facing message, this will appear visibly to the user (ie. toast or snackbar)
@@ -58,14 +64,4 @@ interface ErrorHandler {
     suspend fun logError(e: Throwable, message: String = "")
     suspend fun logError(message: String)
     fun resetMessages()
-//    fun initErrorStrings(
-//        errorUserNotEnabled: String,
-//        errorCannotConnect: String,
-//        errorPlaybackException: String,
-//        errorIoException: String,
-//        errorCannotEditPreference: String,
-//        errorOffline: String,
-//        errorDuplicate: String,
-//        errorEmptyResult: String
-//    )
 }

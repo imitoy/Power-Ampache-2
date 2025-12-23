@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -83,6 +84,7 @@ fun MainContentTopAppBar(
     floatingActionVisible: Boolean,
     onGenreScreenBackClick: () -> Unit,
     onMagicPlayClick: () -> Unit,
+    onPlayAllClick: () -> Unit,
     onOfflineModeSwitch: () -> Unit,
     onNavigationIconClick: (MainContentTopAppBarEvent) -> Unit
 ) {
@@ -174,6 +176,16 @@ fun MainContentTopAppBar(
                     Icon(
                         imageVector = Icons.Default.NotificationImportant,
                         contentDescription = "Notifications"
+                    )
+                }
+            }
+
+            AnimatedVisibility(isGenreSubScreen) {
+                IconButton(
+                    onClick = onPlayAllClick) {
+                    Icon(
+                        imageVector = Icons.Default.PlayCircle,
+                        contentDescription = stringResource(id = R.string.queue)
                     )
                 }
             }

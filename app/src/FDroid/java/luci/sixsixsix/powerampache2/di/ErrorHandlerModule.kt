@@ -22,14 +22,7 @@
 package luci.sixsixsix.powerampache2.di
 
 import android.app.Application
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import luci.sixsixsix.powerampache2.CrashReportHelper
-import luci.sixsixsix.powerampache2.data.ErrorHandlerImpl
-import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
-import javax.inject.Singleton
 
 class ErrorHandlerModule {
     companion object {
@@ -38,6 +31,7 @@ class ErrorHandlerModule {
          */
         fun provideCrashReportHelper(): CrashReportHelper = object : CrashReportHelper {
             override fun initialize(application: Application) {
+                // DO NOTHING
             }
         }
     }

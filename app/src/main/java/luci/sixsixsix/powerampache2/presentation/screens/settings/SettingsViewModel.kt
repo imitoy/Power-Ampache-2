@@ -38,6 +38,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -48,7 +49,6 @@ import luci.sixsixsix.powerampache2.common.RandomThemeBackgroundColour
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.getVersionInfoString
 import luci.sixsixsix.powerampache2.common.openLinkInBrowser
-import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
@@ -60,6 +60,9 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.GetLocalSettingsUseC
 import luci.sixsixsix.powerampache2.domain.usecase.settings.LocalSettingsFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SaveLocalSettingsUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerEndTimestampFlow
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerSetWaitSongEndUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerWaitSongEnd
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleOfflineModeUseCase
 import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
@@ -80,21 +83,23 @@ class SettingsViewModel @Inject constructor(
     private val getLocalSettingsUseCase: GetLocalSettingsUseCase,
     private val toggleOfflineMode: ToggleOfflineModeUseCase,
     private val deleteAllDownloadedSongs: DeleteAllDownloadedSongsUseCase,
+    private val sleepTimerWaitSongEnd: SleepTimerWaitSongEnd,
+    private val sleepTimerEndTimestampFlow: SleepTimerEndTimestampFlow,
+    private val sleepTimerSetWaitSongEndUseCase: SleepTimerSetWaitSongEndUseCase,
     localSettingsFlow: LocalSettingsFlowUseCase,
     offlineModeFlowUseCase: OfflineModeFlowUseCase,
     userFlowUseCase: UserFlowUseCase,
     serverInfoStateFlowUseCase: ServerInfoStateFlowUseCase,
     private val errorHandler: ErrorHandler,
     private val sharedPreferencesManager: SharedPreferencesManager,
-    private val alarmScheduler: AlarmScheduler,
-    private val sleepTimerEventBus: SleepTimerEventBus
+    private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
 
     var state by savedStateHandle.saveable {
         mutableStateOf(SettingsState(appVersionInfoStr = getVersionInfoString(application)))
     }
 
-    private fun playerBuffersInitialState() = PlayerSettingsState(
+    private fun playerSettingsInitialState() = PlayerSettingsState(
         backBuffer = sharedPreferencesManager.backBuffer / 1000,
         minBuffer = sharedPreferencesManager.minBufferMs / 1000,
         maxBuffer = sharedPreferencesManager.maxBufferMs / 1000,
@@ -104,11 +109,12 @@ class SettingsViewModel @Inject constructor(
         cacheSizeMb = sharedPreferencesManager.cacheSizeMb,
         prioritizeTimeOverSizeThresholds = sharedPreferencesManager.prioritizeTimeOverSizeThresholds,
         targetBufferBytes = sharedPreferencesManager.targetBufferBytes,
-        sleepTimerEndTime = getSleepTimerDescription(),// sharedPreferencesManager.sleepTimerEndTimestamp,
-        sleepTimerMins = 0
+        sleepTimerEndTime = getSleepTimerDescription(),
+        sleepTimerMins = 0,
+        sleepTimerWaitSongEnd = sleepTimerWaitSongEnd()
     )
 
-    var playerSettingsStateFlow = MutableStateFlow(playerBuffersInitialState())
+    var playerSettingsStateFlow = MutableStateFlow(playerSettingsInitialState())
         private set
     val logs by mutableStateOf(mutableListOf<String>())
 
@@ -150,8 +156,15 @@ class SettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            sleepTimerEventBus.sleepTimerEvents.collect {
-                resetSleepTimerValue()
+            // listen for resets of the sleep timer
+            sleepTimerEndTimestampFlow().filter { it == 0L }.collect { value ->
+                if (value == 0L) {
+                    resetSleepTimerValue()
+//                    playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+//                        sleepTimerMins = 0,
+//                        sleepTimerEndTime = getSleepTimerDescription()
+//                    )
+                }
             }
         }
     }
@@ -236,7 +249,7 @@ class SettingsViewModel @Inject constructor(
 
             PlayerSettingsEvent.OnResetDefaults -> {
                 sharedPreferencesManager.resetBufferDefaults()
-                playerSettingsStateFlow.value = playerBuffersInitialState()
+                playerSettingsStateFlow.value = playerSettingsInitialState()
             }
 
             PlayerSettingsEvent.OnKillApp -> {
@@ -347,6 +360,7 @@ class SettingsViewModel @Inject constructor(
             }
 
             SettingsEvent.OnResetSleepTimer -> {
+                // calling resetSleepTimerUseCase() will also cancel the alarm
                 alarmScheduler.cancelSleepTimer()
                 resetSleepTimerValue()
             }
@@ -355,39 +369,35 @@ class SettingsViewModel @Inject constructor(
                 playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
                     sleepTimerMins = event.timerMins,
                     sleepTimerEndTime = getSleepTimerDescription(
-                        System.currentTimeMillis() + (event.timerMins * 60L * 1000L)) //event.timerMins * 60 * 1000L
+                        System.currentTimeMillis() + (event.timerMins * 60L * 1000L)
+                    )
+                )
+            }
+            is SettingsEvent.OnSleepTimerWaitForSongEndChange -> {
+                sleepTimerSetWaitSongEndUseCase(event.waitForSongEnd)
+                playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+                    sleepTimerWaitSongEnd = event.waitForSongEnd
                 )
             }
         }
     }
 
     private fun resetSleepTimerValue() {
-        sharedPreferencesManager.resetSleepTimer()
         playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
-            sleepTimerEndTime = null
+            sleepTimerEndTime = null,
+            sleepTimerMins = 0
         )
     }
 
-    fun getSleepTimerDescription2(timeMillis: Long? = null): String? {
-        val ts = timeMillis ?: sharedPreferencesManager.sleepTimerEndTimestamp
-        if (ts == 0L || ts <= System.currentTimeMillis()) return null
-
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        val localTime = Instant.ofEpochMilli(ts)
-            .atZone(ZoneId.systemDefault())
-            .toLocalTime()
-
-        return "Will stop music at ${formatter.format(localTime)}"
-    }
-
     fun getSleepTimerDescription(timeMillis: Long? = null): String? {
-        val ts = timeMillis ?: sharedPreferencesManager.sleepTimerEndTimestamp
+        val ts = timeMillis ?: sleepTimerEndTimestampFlow().value //sharedPreferencesManager.sleepTimerEndTimestamp
         if (ts == 0L || ts <= System.currentTimeMillis()) {
-            sharedPreferencesManager.resetSleepTimer()
+            //sharedPreferencesManager.resetSleepTimer()
+            //sleepTimerResetUseCase()
             return null
         }
 
-// Determine user 24h preference
+        // Determine user 24h preference
         val pattern = if (DateFormat.is24HourFormat(application)) "HH:mm" else "h:mm a"
 
         val formatter = DateTimeFormatter.ofPattern(pattern).withLocale(Locale.getDefault())

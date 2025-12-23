@@ -161,6 +161,7 @@ fun SettingsScreen(
         isPrioritizeTimeOverSizeThresholds = playerSettingsState.prioritizeTimeOverSizeThresholds,
         sleepTimerMins = playerSettingsState.sleepTimerMins,
         endTimeStr = playerSettingsState.sleepTimerEndTime,
+        sleepTimerWaitSongEnd = playerSettingsState.sleepTimerWaitSongEnd,
         onThemeSelected = {
             settingsViewModel.onEvent(SettingsEvent.OnThemeChange(it))
         },
@@ -262,6 +263,9 @@ fun SettingsScreen(
         },
         onSetSleepTimer = {
             settingsViewModel.onEvent(SettingsEvent.OnSetSleepTimer(it))
+        },
+        onSleepTimerWaitForSongEndChange = {
+            settingsViewModel.onEvent(SettingsEvent.OnSleepTimerWaitForSongEndChange (it))
         }
     )
 }
@@ -315,6 +319,7 @@ fun SettingsScreenContent(
     targetBufferBytes: Int,
     sleepTimerMins: Int,
     endTimeStr: String?,
+    sleepTimerWaitSongEnd: Boolean,
     isPrioritizeTimeOverSizeThresholds: Boolean,
     onThemeSelected: (selected: PowerAmpTheme) -> Unit,
     onStreamingQualitySelected: (selected: StreamingQuality) -> Unit,
@@ -342,6 +347,7 @@ fun SettingsScreenContent(
     onUseOkHttpExoPlayer: (newValue: Boolean) -> Unit,
     onTargetBufferBytesChange: (newValue: Int) -> Unit,
     onPrioritizeTimeOverSizeThresholdsChange: (newValue: Boolean) -> Unit,
+    onSleepTimerWaitForSongEndChange: (newValue: Boolean) -> Unit,
     onResetValuesClick: () -> Unit,
     onKillAppClick: () -> Unit,
     onResetSleepTimer: () -> Unit,
@@ -472,7 +478,9 @@ fun SettingsScreenContent(
                     sliderValue = sleepTimerMins,
                     endTimeStr = endTimeStr,
                     onReset = onResetSleepTimer,
-                    onValueChange = onSetSleepTimer
+                    onValueChange = onSetSleepTimer,
+                    sleepTimerWaitSongEnd = sleepTimerWaitSongEnd,
+                    onSleepTimerWaitForSongEndChange = onSleepTimerWaitForSongEndChange
                 )
                 // NORMALIZE VOLUME SWITCH
                 11 -> PowerAmpSwitch(
@@ -829,6 +837,8 @@ fun PreviewSettingsScreen() {
         onSetSleepTimer = {},
         onResetSleepTimer = {},
         sleepTimerMins = 11,
-        endTimeStr = ""
+        endTimeStr = "",
+        onSleepTimerWaitForSongEndChange = {},
+        sleepTimerWaitSongEnd = true
     )
 }

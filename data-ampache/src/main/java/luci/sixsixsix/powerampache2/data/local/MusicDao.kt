@@ -21,7 +21,6 @@
  */
 package luci.sixsixsix.powerampache2.data.local
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -32,7 +31,6 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapConcat
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.data.local.entities.AlbumEntity
 import luci.sixsixsix.powerampache2.data.local.entities.ArtistEntity
@@ -594,7 +592,7 @@ interface MusicDao {
     suspend fun getSettings(): LocalSettingsEntity?
 
     @Query("""SELECT * FROM localsettingsentity WHERE LOWER(username) == LOWER((SELECT username FROM credentialsentity WHERE primaryKey == '$CREDENTIALS_PRIMARY_KEY'))""")
-    fun settingsLiveData(): LiveData<LocalSettingsEntity?>
+    fun settingsLiveData(): Flow<LocalSettingsEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun writeSettings(localSettingsEntity: LocalSettingsEntity)

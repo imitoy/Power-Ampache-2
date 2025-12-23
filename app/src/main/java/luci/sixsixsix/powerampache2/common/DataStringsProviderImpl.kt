@@ -54,7 +54,8 @@ class DataStringsProviderImpl @Inject constructor(@ApplicationContext private va
             deviceModel = try { Build.MODEL } catch (e: Exception) { "${e.localizedMessage}" },
             deviceManufacturer = try { Build.MANUFACTURER } catch (e: Exception) { "${e.localizedMessage}" },
             appVersionString = getVersionInfoString(context),
-            backendType = "todo",
-            backendVersion = "todo"
+//            backendType = "todo",
+//            backendVersion = "todo",
+//            ampacheApi = "todo"
         )
 }

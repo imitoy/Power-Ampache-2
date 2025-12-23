@@ -233,6 +233,17 @@ fun MainContentScreen(
                     onGenreScreenBackClick = {
                         searchViewModel.onEvent(SearchViewEvent.Clear)
                     },
+                    onPlayAllClick = {
+                        // if play all is called from the genre screen
+                        //if (isGenreSubScreen)
+                        searchViewModel.state.songs.let { songs ->
+                            if (songs.isNotEmpty()) {
+                                mainViewModel.onEvent(MainEvent.PlaySongReplacePlaylist(
+                                    song = songs[0],
+                                    songList = searchViewModel.state.songs))
+                            }
+                        }
+                    }
                 ) { event ->
                     when(event) {
                         // OPEN-CLOSE drawer

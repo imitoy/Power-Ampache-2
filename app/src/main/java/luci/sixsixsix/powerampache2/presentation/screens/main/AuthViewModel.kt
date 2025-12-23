@@ -47,11 +47,11 @@ import luci.sixsixsix.powerampache2.common.disableSSLCertificateVerify
 import luci.sixsixsix.powerampache2.domain.MusicRepository
 import luci.sixsixsix.powerampache2.domain.common.sha256
 import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
+import luci.sixsixsix.powerampache2.domain.usecase.PingUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.SessionFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.UserFlowUseCase
 import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,6 +62,7 @@ class AuthViewModel @Inject constructor(
     sessionFlowUseCase: SessionFlowUseCase,
     private val errorHandler: ErrorHandler,
     private val sharedPreferencesManager: SharedPreferencesManager,
+    private val pingUseCase: PingUseCase,
     pingScheduler: AlarmScheduler,
     @ApplicationContext private val application: Context,
     savedStateHandle: SavedStateHandle
@@ -159,7 +160,7 @@ class AuthViewModel @Inject constructor(
      *  try to login with saved auth token
      *  ping will refresh the token if previous one still valid
      */
-    private suspend fun pingServerSync() = repository.ping().let { ping ->
+    private suspend fun pingServerSync() = pingUseCase().let { ping ->
         val newSession = ping.data?.second
         //val isSessionNull = newSession == null
         when (ping) {

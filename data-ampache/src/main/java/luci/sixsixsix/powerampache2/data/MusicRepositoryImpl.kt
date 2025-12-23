@@ -120,7 +120,8 @@ class MusicRepositoryImpl @Inject constructor(
                 if (newToken != currentAuthToken || currentUser == null) {
                     currentAuthToken = newToken
                     try {
-                        currentUser = getUserNetwork()
+                        // do not report error here, this can be noisy
+                        currentUser = getUserNetwork(reportError = false)
                     } catch (e: Exception) {
                         errorHandler.logError(e)
                     }
@@ -242,7 +243,7 @@ class MusicRepositoryImpl @Inject constructor(
             // server info always available
             val servInfo = pingResponse.toServerInfo()
             L("aaaa setting live data for server info ${servInfo.version}")
-            _serverInfoStateFlow.value = servInfo
+            updateServerInfo(servInfo)
             Resource.Success(Pair(servInfo, getSession()))
         } catch (e: IOException) {
             Resource.Error(message = "cannot load data", exception = e)
@@ -253,6 +254,12 @@ class MusicRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(message = "cannot load data", exception = e)
         }
+
+    private fun updateServerInfo(servInfo: ServerInfo) {
+        _serverInfoStateFlow.value = servInfo
+        // TODO: bad pattern, both the repository and the error handler should listen to the serverInfo state
+        errorHandler.serverInfo = servInfo
+    }
 
     override suspend fun autoLogin() = getCredentials()?.let {
         authorize(

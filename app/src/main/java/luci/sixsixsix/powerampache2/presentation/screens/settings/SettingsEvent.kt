@@ -42,4 +42,5 @@ sealed class SettingsEvent {
     data class OnDownloadFavouriteAfterPlayChange(val isDownloadFavourite: Boolean): SettingsEvent()
     data object OnResetSleepTimer: SettingsEvent()
     data class OnSetSleepTimer(val timerMins: Int): SettingsEvent()
+    data class OnSleepTimerWaitForSongEndChange(val waitForSongEnd: Boolean): SettingsEvent()
 }

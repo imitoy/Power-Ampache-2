@@ -21,13 +21,19 @@
  */
 package luci.sixsixsix.powerampache2.di
 
+import android.app.Application
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import luci.sixsixsix.powerampache2.alarm.PingScheduler
 import luci.sixsixsix.powerampache2.common.ShareManagerImpl
 import luci.sixsixsix.powerampache2.common.WorkerHelperImpl
+import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.ShareManager
+import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import luci.sixsixsix.powerampache2.domain.utils.WorkerHelper
 import javax.inject.Singleton
 
@@ -45,4 +51,19 @@ abstract class BindModule {
     abstract fun bindWorkerHelper(
         workerHelperImpl: WorkerHelperImpl
     ): WorkerHelper
+
+    @Binds
+    @Singleton
+    abstract fun bindAlarmScheduler(
+        pingScheduler: PingScheduler
+    ): AlarmScheduler
+
+//    @Provides
+//    @Singleton
+//    fun provideAlarmScheduler(
+//        application: Application,
+//        sharedPreferencesManager: SharedPreferencesManager,
+//        coroutineScope: CoroutineScope
+//    ): AlarmScheduler =
+//        PingScheduler(application, sharedPreferencesManager, coroutineScope)
 }

@@ -40,7 +40,10 @@ interface SharedPreferencesManager {
     var introDialogContent: String
 
     // sleep timer
+    val sleepTimerEndTimestampFlow: StateFlow<Long>
+
     var sleepTimerEndTimestamp: Long
+    var sleepTimerWaitSongEnd: Boolean
 
     fun shouldShowIntroDialog(newContent: String ): Boolean
     fun resetBufferDefaults()

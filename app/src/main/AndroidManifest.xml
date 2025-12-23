@@ -71,7 +71,7 @@
             </intent-filter>
         </service>
         
-        <receiver android:name=".data.remote.AlarmReceiver"/>
+        <receiver android:name=".alarm.AlarmReceiver"/>
 
         <!-- remove default worker initializer to provide custom one -->
         <provider

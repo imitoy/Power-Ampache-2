@@ -45,9 +45,11 @@ import luci.sixsixsix.powerampache2.domain.errors.ScrobbleException
 import luci.sixsixsix.powerampache2.domain.errors.ServerUrlNotInitializedException
 import luci.sixsixsix.powerampache2.domain.errors.UserNotEnabledException
 import luci.sixsixsix.powerampache2.domain.errors.models.ErrorLogMessageState
-import luci.sixsixsix.powerampache2.domain.errors.models.LogMessageState
 import luci.sixsixsix.powerampache2.domain.errors.models.ErrorStrings
+import luci.sixsixsix.powerampache2.domain.errors.models.LogMessageState
 import luci.sixsixsix.powerampache2.domain.models.ApplicationStrings
+import luci.sixsixsix.powerampache2.domain.models.ServerInfo
+import luci.sixsixsix.powerampache2.domain.models.nextcloudMusicVersion
 import luci.sixsixsix.powerampache2.domain.utils.ConfigProvider
 import luci.sixsixsix.powerampache2.domain.utils.DataStringsProvider
 import luci.sixsixsix.powerampache2.errorlogger.models.ErrorLog
@@ -78,6 +80,8 @@ class ErrorHandlerImpl @Inject constructor(
 
     private val _errorLogMessageState = MutableStateFlow(ErrorLogMessageState())
     override val errorLogMessageState: StateFlow<ErrorLogMessageState> = _errorLogMessageState
+
+    override var serverInfo: ServerInfo = ServerInfo()
 
     val isErrorHandlingEnabled: StateFlow<Boolean> =
         db.settingsFlow
@@ -265,16 +269,20 @@ class ErrorHandlerImpl @Inject constructor(
                 // do not log NullSessionException, too frequent
                 && !message.lowercase().contains("NullSessionException".lowercase())
                 ) {
+                    val backendVersion = if (serverInfo.isNextcloud != true)
+                        serverInfo.server else serverInfo.nextcloudMusicVersion()
+
                     errorHandlerApi.postErrorLog(
                         ErrorLog(
                             error_log = message,
                             android_version = applicationStrings.androidVersion,
                             app_version = applicationStrings.appVersionString,
-                            backend_type = applicationStrings.backendType,
-                            backend_version = applicationStrings.backendVersion,
+                            backend_type = if (serverInfo.isNextcloud != true) "Ampache" else "Nextcloud",
+                            backend_version = backendVersion ?: "null",
                             device_model = applicationStrings.deviceModel,
                             android_api_version = applicationStrings.androidApiLevel,
-                            device_manufacturer = applicationStrings.deviceManufacturer
+                            device_manufacturer = applicationStrings.deviceManufacturer,
+                            ampache_api_version = serverInfo.version ?: "null"
                         )
                     )
             }

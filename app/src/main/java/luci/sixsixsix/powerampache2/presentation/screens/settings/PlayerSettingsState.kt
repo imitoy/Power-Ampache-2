@@ -36,5 +36,6 @@ data class PlayerSettingsState (
     val prioritizeTimeOverSizeThresholds: Boolean,
     val targetBufferBytes: Int,
     val sleepTimerMins: Int,
-    val sleepTimerEndTime: String?
+    val sleepTimerEndTime: String?,
+    val sleepTimerWaitSongEnd: Boolean
 ): Parcelable

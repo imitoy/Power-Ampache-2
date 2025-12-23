@@ -45,8 +45,8 @@ dependencies {
     implementation(project(":errorlogger"))
     implementation(project(":MrLog"))
 
+    // TODO: START those do not belong in the data layer
     implementation(libs.androidx.core.ktx)
-
     // --- Dagger Hilt --- //
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.hilt.work)
     //implementation("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
+    // TODO: END those do not belong in the data layer
+
 
     // --- Retrofit --- //
     implementation(libs.retrofit)

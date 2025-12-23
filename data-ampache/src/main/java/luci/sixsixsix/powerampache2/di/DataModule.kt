@@ -25,14 +25,12 @@ import luci.sixsixsix.powerampache2.data.mapping.AmpacheDateMapper
 import luci.sixsixsix.powerampache2.data.remote.AmpacheOkHttpClientBuilder
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork.Companion.BASE_URL
-import luci.sixsixsix.powerampache2.data.remote.PingScheduler
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_CONNECTION_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_READ_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_WRITE_S
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
 import luci.sixsixsix.powerampache2.domain.mappers.DateMapper
-import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.ConfigProvider
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import okhttp3.Interceptor
@@ -56,14 +54,6 @@ object DataModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-//        val okHttpClient = ampacheOkHttpClientBuilder(false)
-//            .retryOnConnectionFailure(true)
-//            .connectTimeout(TIMEOUT_CONNECTION_S, TimeUnit.SECONDS)
-//            .readTimeout(TIMEOUT_READ_S, TimeUnit.SECONDS)
-//            .writeTimeout(TIMEOUT_WRITE_S, TimeUnit.SECONDS)
-//            .addInterceptor(interceptor)
-//            .build()
-
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
@@ -104,15 +94,6 @@ object DataModule {
     @Singleton
     fun provideWeakApplicationContext(application: Application) =
         WeakContext(application.applicationContext)
-
-    @Provides
-    @Singleton
-    fun provideAlarmScheduler(
-        application: Application,
-        sharedPreferencesManager: SharedPreferencesManager,
-        coroutineScope: CoroutineScope
-    ): AlarmScheduler =
-        PingScheduler(application, sharedPreferencesManager, coroutineScope)
 
     @Provides
     @Singleton
