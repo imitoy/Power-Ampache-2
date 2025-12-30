@@ -155,6 +155,8 @@ class MainViewModel @Inject constructor(
     fun currentQueue() = playlistManager.currentQueueState
     fun currentSongStateFlow() = playlistManager.currentSongState
     fun currentSong() = playlistManager.currentSongState.value
+    fun currentQueuePosition() = currentSong()?.let { currentQueue().value.indexOf(it) } ?: -1
+
 
     fun onEvent(event: MainEvent) =
         weakContext.get()?.applicationContext?.let { handleEvent(event, it) }

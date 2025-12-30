@@ -320,8 +320,11 @@ fun MainContentScreen(
                        is MainContentMenuItem.Offline -> OfflineSongsMainContent(
                            navigator = navigator,
                            mainViewModel = mainViewModel,
-                           playlistOrQueueDialogOpen = isPlaylistAddDialogOpen
-                       ).also { barTitle = stringResource(id = menuItem.title) }
+                           playlistOrQueueDialogOpen = isPlaylistAddDialogOpen,
+                           offlineScreenBarTitle = { offlineScreenStr ->
+                               barTitle = offlineScreenStr
+                           }
+                       )
                        is MainContentMenuItem.Settings -> SettingsScreen(
                            navigator = navigator,
                            settingsViewModel = settingsViewModel

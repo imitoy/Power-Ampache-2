@@ -21,12 +21,9 @@
  */
 package luci.sixsixsix.powerampache2.presentation.screens_detail.song_detail
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,15 +31,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import luci.sixsixsix.powerampache2.common.Resource
-import luci.sixsixsix.powerampache2.domain.common.toDebugString
-import luci.sixsixsix.powerampache2.domain.models.Album
 import luci.sixsixsix.powerampache2.domain.models.Artist
 import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.domain.plugin.info.PluginSongData
 import luci.sixsixsix.powerampache2.domain.plugin.lyrics.getAvailableLyrics
 import luci.sixsixsix.powerampache2.domain.usecase.ServerInfoStateFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.artists.RecommendedArtistsUseCase
-import luci.sixsixsix.powerampache2.domain.usecase.plugin.AlbumDataFromPluginUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsChromecastPluginInstalled
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsInfoPluginInstalled
 import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsLyricsPluginInstalledUseCase
@@ -53,7 +47,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SongDetailViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val serverInfoStateFlowUseCase: ServerInfoStateFlowUseCase,
     private val songFromIdUseCase: SongFromIdUseCase,
     private val recommendedArtistsUseCase: RecommendedArtistsUseCase,

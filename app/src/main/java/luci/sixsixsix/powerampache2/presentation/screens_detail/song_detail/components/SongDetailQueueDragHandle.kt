@@ -85,6 +85,7 @@ fun SongDetailQueueDragHandle(
     lyrics: String,
     scaffoldState: BottomSheetScaffoldState,
     selectedTabIndex: MutableIntState,
+    upNextText: String,
     pagerState: PagerState
 ) {
     val scope = rememberCoroutineScope()
@@ -114,6 +115,7 @@ fun SongDetailQueueDragHandle(
                     lyrics = lyrics,
                     scaffoldState = scaffoldState,
                     pagerState = pagerState,
+                    upNextText = upNextText,
                     selectedTabIndex = selectedTabIndex
                 )
             } else {
@@ -123,6 +125,7 @@ fun SongDetailQueueDragHandle(
                     scaffoldState = scaffoldState,
                     showCloseIcon = false,
                     pagerState = pagerState,
+                    upNextText = upNextText,
                     selectedTabIndex = selectedTabIndex
                 )
             }
@@ -139,6 +142,7 @@ fun SongDetailQueueTopBar(
     pagerState: PagerState,
     scaffoldState: BottomSheetScaffoldState,
     selectedTabIndex: MutableIntState,
+    upNextText: String,
     showCloseIcon: Boolean = true
 ) {
     val arrowWidth = dimensionResource(id = R.dimen.songDetail_handle_arrow_width)
@@ -164,6 +168,7 @@ fun SongDetailQueueTopBar(
                 lyrics = lyrics,
                 scaffoldState = scaffoldState,
                 pagerState = pagerState,
+                upNextText = upNextText,
                 selectedTabIndex = selectedTabIndex
             )
 
@@ -269,6 +274,7 @@ fun SongHandleTabRow(
     lyrics: String,
     scaffoldState: BottomSheetScaffoldState,
     pagerState: PagerState,
+    upNextText: String = stringResource(id = R.string.player_queue_upNext),
     selectedTabIndex: MutableIntState
 ) {
     LaunchedEffect(selectedTabIndex.value) {
@@ -308,7 +314,7 @@ fun SongHandleTabRow(
             },
             text = {
                 Text(
-                    text = stringResource(id = R.string.player_queue_upNext),
+                    text = upNextText,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
                     maxLines = 1,

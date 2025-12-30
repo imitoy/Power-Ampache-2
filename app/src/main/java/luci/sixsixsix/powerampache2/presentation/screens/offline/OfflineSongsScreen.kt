@@ -60,6 +60,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -97,7 +98,9 @@ fun OfflineSongsScreen(
     // For example the offline screen will add offline songs to a playlist, the queue screen will
     // add the queue, etc..
     // The button that sets this variable is the add-to-playlist button on the top bar
-    var isPlaylistAddDialogOpen = remember { mutableStateOf(false) }
+    val isPlaylistAddDialogOpen = remember { mutableStateOf(false) }
+    val titleOfflineSongs = stringResource(R.string.menu_drawer_offline)
+    var barTitle by remember { mutableStateOf(titleOfflineSongs) }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -111,7 +114,7 @@ fun OfflineSongsScreen(
                 ),
                 title = {
                     Text(
-                        text = "Offline Songs",
+                        text = barTitle,
                         maxLines = 1,
                         fontWeight = FontWeight.Normal,
                     )
@@ -167,11 +170,13 @@ fun OfflineSongsScreen(
                 mainViewModel = mainViewModel,
                 viewModel = viewModel,
                 modifier = modifier,
-                playlistOrQueueDialogOpen = isPlaylistAddDialogOpen
+                playlistOrQueueDialogOpen = isPlaylistAddDialogOpen,
+                offlineScreenBarTitle = { title ->
+                    barTitle = title
+                }
             )
         }
     }
-
 }
 
 @Composable
@@ -182,17 +187,21 @@ fun OfflineSongsMainContent(
     modifier: Modifier = Modifier,
     playlistOrQueueDialogOpen: MutableState<Boolean>,
     viewModel: OfflineSongsViewModel = hiltViewModel(),
-    addToPlaylistOrQueueDialogViewModel: AddToPlaylistOrQueueDialogViewModel = hiltViewModel()
+    addToPlaylistOrQueueDialogViewModel: AddToPlaylistOrQueueDialogViewModel = hiltViewModel(),
+    offlineScreenBarTitle: (String) -> Unit = { }
 ) {
-    val state = viewModel.state
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val titleOfflineSongs = stringResource(R.string.menu_drawer_offline)
+    offlineScreenBarTitle(if (state.songs.isNotEmpty()) "$titleOfflineSongs (${state.songs.size})" else titleOfflineSongs)
 
     // init the dialog, set false to keep it closed
     var playlistsDialogOpen by remember { mutableStateOf(AddToPlaylistOrQueueDialogOpen(false)) }
 
     // react to click on addToPlaylist icon
-    if (playlistOrQueueDialogOpen.value && viewModel.state.songs.isNotEmpty()) {
-        playlistsDialogOpen = AddToPlaylistOrQueueDialogOpen(true, viewModel.state.songs)
-    } else if (playlistOrQueueDialogOpen.value && viewModel.state.songs.isEmpty()) {
+    if (playlistOrQueueDialogOpen.value && state.songs.isNotEmpty()) {
+        playlistsDialogOpen = AddToPlaylistOrQueueDialogOpen(true, state.songs)
+    } else if (playlistOrQueueDialogOpen.value && state.songs.isEmpty()) {
         playlistOrQueueDialogOpen.value = false
         Toast.makeText(LocalContext.current, R.string.offline_noData_warning, Toast.LENGTH_LONG).show()
     }
