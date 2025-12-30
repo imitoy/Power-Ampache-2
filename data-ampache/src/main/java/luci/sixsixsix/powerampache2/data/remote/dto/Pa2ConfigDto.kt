@@ -114,7 +114,6 @@ data class Pa2ConfigDto(
     val songsRecentFetchLimit: Int? = null,
     @SerializedName("hideAlbumsRatedBelow")
     val hideAlbumsRatedBelow: Float? = null,
-
     @SerializedName("queueSizeLimit")
     val queueSizeLimit: Int? = null,
     @SerializedName("removeDuplicateSongs")
@@ -125,9 +124,10 @@ data class Pa2ConfigDto(
     val useIncrementalLimitForAlbums: Boolean? = null,
     @SerializedName("featureString")
     val featureString: String? = null,
-
     @SerializedName("showSettingsExportDbButton")
-    val showSettingsExportDbButton: Boolean? = null
+    val showSettingsExportDbButton: Boolean? = null,
+    @SerializedName("enableExternalDirDownloads")
+    val enableExternalDirDownloads: Boolean? = null
 )
 
 /**
@@ -167,7 +167,8 @@ fun Pa2ConfigDto.toPa2Config(configProvider: ConfigProvider) = Pa2Config(
     featureString = featureString ?: "",
     queueSizeLimit = queueSizeLimit ?: QUEUE_SIZE_LIMIT,
     hideAlbumsRatedBelow = hideAlbumsRatedBelow ?: 0.0f,
-    showSettingsExportDbButton = showSettingsExportDbButton == true
+    showSettingsExportDbButton = showSettingsExportDbButton == true,
+    enableExternalDirDownloads = enableExternalDirDownloads == true
 )
 
 /**

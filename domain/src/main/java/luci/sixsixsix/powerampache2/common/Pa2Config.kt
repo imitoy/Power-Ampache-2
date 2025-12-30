@@ -122,7 +122,8 @@ data class Pa2Config(
     val useIncrementalLimitForAlbums: Boolean,// = USE_INCREMENTAL_LIMIT_ALBUMS
 
     // show a button to export the internal sqlite db
-    val showSettingsExportDbButton: Boolean = false
+    val showSettingsExportDbButton: Boolean = false,
+    val enableExternalDirDownloads: Boolean = false
 )
 
 fun Pa2Config.isIntroMessageUserString() = shouldShowIntroMessage &&

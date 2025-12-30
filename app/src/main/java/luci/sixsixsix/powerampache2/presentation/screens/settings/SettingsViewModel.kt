@@ -55,11 +55,14 @@ import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
 import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
 import luci.sixsixsix.powerampache2.domain.usecase.ServerInfoStateFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.UserFlowUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.ClearCustomDownloadLocationUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.DeleteAllDownloadedSongsUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.GetCustomDownloadLocationUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.GetLocalSettingsUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.LocalSettingsFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SaveLocalSettingsUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SetCustomDownloadLocationUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerEndTimestampFlow
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerSetWaitSongEndUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerWaitSongEnd
@@ -86,6 +89,9 @@ class SettingsViewModel @Inject constructor(
     private val sleepTimerWaitSongEnd: SleepTimerWaitSongEnd,
     private val sleepTimerEndTimestampFlow: SleepTimerEndTimestampFlow,
     private val sleepTimerSetWaitSongEndUseCase: SleepTimerSetWaitSongEndUseCase,
+    private val clearCustomDownloadLocationUseCase: ClearCustomDownloadLocationUseCase,
+    private val getCustomDownloadLocationUseCase: GetCustomDownloadLocationUseCase,
+    private val setCustomDownloadLocationUseCase: SetCustomDownloadLocationUseCase,
     localSettingsFlow: LocalSettingsFlowUseCase,
     offlineModeFlowUseCase: OfflineModeFlowUseCase,
     userFlowUseCase: UserFlowUseCase,
@@ -111,7 +117,8 @@ class SettingsViewModel @Inject constructor(
         targetBufferBytes = sharedPreferencesManager.targetBufferBytes,
         sleepTimerEndTime = getSleepTimerDescription(),
         sleepTimerMins = 0,
-        sleepTimerWaitSongEnd = sleepTimerWaitSongEnd()
+        sleepTimerWaitSongEnd = sleepTimerWaitSongEnd(),
+        customDownloadLocation = getCustomDownloadLocationUseCase()
     )
 
     var playerSettingsStateFlow = MutableStateFlow(playerSettingsInitialState())
@@ -377,6 +384,18 @@ class SettingsViewModel @Inject constructor(
                 sleepTimerSetWaitSongEndUseCase(event.waitForSongEnd)
                 playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
                     sleepTimerWaitSongEnd = event.waitForSongEnd
+                )
+            }
+            is SettingsEvent.OnChooseCustomDirDownloads -> viewModelScope.launch {
+                setCustomDownloadLocationUseCase(event.uri)
+                playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+                    customDownloadLocation = event.uri
+                )
+            }
+            SettingsEvent.OnClearCustomDirDownloads -> viewModelScope.launch {
+                clearCustomDownloadLocationUseCase()
+                playerSettingsStateFlow.value = playerSettingsStateFlow.value.copy(
+                    customDownloadLocation = null
                 )
             }
         }

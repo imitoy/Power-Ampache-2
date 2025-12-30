@@ -89,8 +89,7 @@ class MusicRepositoryImpl @Inject constructor(
     db: MusicDatabase,
     private val errorHandler: ErrorHandler,
     private val configProvider: ConfigProvider,
-    applicationCoroutineScope: CoroutineScope,
-    @ApplicationContext private val context: Context
+    applicationCoroutineScope: CoroutineScope
 ): BaseAmpacheRepository(api, db, errorHandler), MusicRepository {
     private val _serverInfoStateFlow = MutableStateFlow(ServerInfo())
     override val serverInfoStateFlow: StateFlow<ServerInfo> = _serverInfoStateFlow
@@ -450,10 +449,6 @@ class MusicRepositoryImpl @Inject constructor(
         emit(Resource.Loading(false))
     }.catch { e -> errorHandler("logout()", e, this) }
 
-    override suspend fun getStorageLocation(): String =
-        if (dao.getSettings()?.toLocalSettings()?.isDownloadsSdCard == true) {
-            context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath ?: context.filesDir.absolutePath
-        } else {
-            context.filesDir.absolutePath
-        }
+    override suspend fun isDownloadsSdCard(): Boolean =
+        dao.getSettings()?.toLocalSettings()?.isDownloadsSdCard == true
 }

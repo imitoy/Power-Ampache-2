@@ -77,6 +77,9 @@ data class LocalSettingsEntity(
 
     @ColumnInfo(name = "saveFavouriteSongAfterPlayback", defaultValue = "${LocalSettings.SETTINGS_DEFAULTS_SAVE_FAVOURITE_AFTER_PLAY}")
     val saveFavouriteSongAfterPlayback: Boolean = false,
+
+    @ColumnInfo(name = "downloadRootUri", defaultValue = "")
+    val downloadRootUri: String = "",
 )
 
 fun LocalSettingsEntity.toLocalSettings() = LocalSettings(
@@ -93,9 +96,10 @@ fun LocalSettingsEntity.toLocalSettings() = LocalSettings(
     isOfflineModeEnabled = isOfflineModeEnabled,
     playlistSongsSorting = playlistSongsSorting,
     isDownloadsSdCard = isDownloadsSdCard,
-    sleepTimerMinutes = sleepTimerMinutes,
+    //sleepTimerMinutes = sleepTimerMinutes,
     saveSongAfterPlayback = saveSongAfterPlayback,
-    saveFavouriteSongAfterPlayback = saveFavouriteSongAfterPlayback
+    saveFavouriteSongAfterPlayback = saveFavouriteSongAfterPlayback,
+    //downloadRootUri = downloadRootUri
 )
 
 fun LocalSettings.toLocalSettingsEntity() = LocalSettingsEntity(
@@ -113,5 +117,7 @@ fun LocalSettings.toLocalSettingsEntity() = LocalSettingsEntity(
     playlistSongsSorting = playlistSongsSorting,
     isDownloadsSdCard = isDownloadsSdCard,
     saveSongAfterPlayback = saveSongAfterPlayback,
-    saveFavouriteSongAfterPlayback = saveFavouriteSongAfterPlayback
+    saveFavouriteSongAfterPlayback = saveFavouriteSongAfterPlayback,
+    //downloadRootUri = downloadRootUri.let { downloadRootUri.toString() } ?: "",
+    //sleepTimerMinutes = sleepTimerMinutes
 )

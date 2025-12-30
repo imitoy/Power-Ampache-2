@@ -74,7 +74,9 @@ fun TextWithSubtitle(
             .alpha(if (!enabled) { 0.5f } else { 1f }),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = title,
                 fontSize = 14.sp,

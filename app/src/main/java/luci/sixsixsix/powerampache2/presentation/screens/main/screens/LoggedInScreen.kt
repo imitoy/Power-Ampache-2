@@ -47,25 +47,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.R
-import luci.sixsixsix.powerampache2.common.capitalizeWords
 import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.presentation.NavGraphs
 import luci.sixsixsix.powerampache2.presentation.dialogs.IntroDialog
 import luci.sixsixsix.powerampache2.presentation.screens.main.AuthViewModel
-
+import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.CheckCustomStoragePermissionDialog
 import luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.SheetDragHandle
 import luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel.MainEvent
 import luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel.MainViewModel
 import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsViewModel
 import luci.sixsixsix.powerampache2.presentation.screens_detail.song_detail.SongDetailScreen
-import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,6 +122,9 @@ fun LoggedInScreen(
             settingsViewModel.onDismissIntroDialog()
         }
     }
+
+    // Check custom storage permission presence at every resume
+    CheckCustomStoragePermissionDialog(settingsViewModel)
 
     // This scaffold is used just for the bottom sheet
     BottomSheetScaffold(
