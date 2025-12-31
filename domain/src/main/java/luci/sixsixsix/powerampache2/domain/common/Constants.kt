@@ -21,6 +21,8 @@
  */
 package luci.sixsixsix.powerampache2.domain.common
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
 import luci.sixsixsix.powerampache2.common.Pa2Config
 
 object Constants {
@@ -91,5 +93,13 @@ object Constants {
     const val PLUGIN_CHROMECAST_SERVICE_ID = "${PLUGIN_CHROMECAST_ID}.QueueFetchService"
     const val PLUGIN_CHROMECAST_ACTIVITY_ID = "${PLUGIN_CHROMECAST_ID}.MainActivity"
 
-    lateinit var config: Pa2Config
+    @Deprecated("use getConfig()") lateinit var config: Pa2Config
+
+    // TODO: use this from now
+    // calling getConfig() will ensure that the config has been fetched at app start.
+    // setConfig can be called only once, every subsequent call will be ignored.
+    // use this if waiting for the config value is important
+    private val configDeferred = CompletableDeferred<Pa2Config>()
+    suspend fun getConfig() = configDeferred.await()
+    fun setConfig(value: Pa2Config) = configDeferred.complete(value)
 }

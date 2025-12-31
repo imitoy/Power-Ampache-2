@@ -148,6 +148,7 @@ class MusicRepositoryImpl @Inject constructor(
                 configProvider.defaultPa2Config()
             }
         }
+        Constants.setConfig(Constants.config)
     }
 
     /**

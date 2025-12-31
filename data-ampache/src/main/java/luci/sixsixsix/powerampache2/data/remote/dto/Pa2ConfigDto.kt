@@ -127,7 +127,11 @@ data class Pa2ConfigDto(
     @SerializedName("showSettingsExportDbButton")
     val showSettingsExportDbButton: Boolean? = null,
     @SerializedName("enableExternalDirDownloads")
-    val enableExternalDirDownloads: Boolean? = null
+    val enableExternalDirDownloads: Boolean? = null,
+    @SerializedName("performOfflineSongsSanityCheck")
+    val performOfflineSongsSanityCheck: Boolean? = null,
+    @SerializedName("forceOfflineSongsSanityCheck")
+    val forceOfflineSongsSanityCheck: Boolean? = null,
 )
 
 /**
@@ -168,7 +172,9 @@ fun Pa2ConfigDto.toPa2Config(configProvider: ConfigProvider) = Pa2Config(
     queueSizeLimit = queueSizeLimit ?: QUEUE_SIZE_LIMIT,
     hideAlbumsRatedBelow = hideAlbumsRatedBelow ?: 0.0f,
     showSettingsExportDbButton = showSettingsExportDbButton == true,
-    enableExternalDirDownloads = enableExternalDirDownloads == true
+    enableExternalDirDownloads = enableExternalDirDownloads == true,
+    performOfflineSongsSanityCheck = performOfflineSongsSanityCheck ?: true,
+    forceOfflineSongsSanityCheck = forceOfflineSongsSanityCheck == true
 )
 
 /**

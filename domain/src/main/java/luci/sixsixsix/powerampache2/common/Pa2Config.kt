@@ -123,7 +123,9 @@ data class Pa2Config(
 
     // show a button to export the internal sqlite db
     val showSettingsExportDbButton: Boolean = false,
-    val enableExternalDirDownloads: Boolean = false
+    val enableExternalDirDownloads: Boolean = false,
+    val performOfflineSongsSanityCheck: Boolean = true,
+    val forceOfflineSongsSanityCheck: Boolean = false
 )
 
 fun Pa2Config.isIntroMessageUserString() = shouldShowIntroMessage &&

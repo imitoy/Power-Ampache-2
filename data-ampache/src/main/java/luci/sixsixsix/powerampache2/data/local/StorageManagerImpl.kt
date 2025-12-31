@@ -196,6 +196,40 @@ class StorageManagerImpl @Inject constructor(
         ).deleteRecursively()
     }
 
+    @Throws(Exception::class)
+    suspend fun getAllSongsFromStorage(storage: String) = withContext(Dispatchers.IO) {
+        val dir = File(
+            StringBuffer(storage)
+                .append("/")
+                .append(SUB_DIR)
+                .append("/")
+                .toString()
+        )
+
+        val mp3Files: List<File> =
+            dir.walkTopDown()
+                .filter { it.isFile
+                        && !it.extension.equals("png", ignoreCase = true)
+                        && !it.extension.equals("jpg", ignoreCase = true)
+                        && !it.extension.equals("jpeg", ignoreCase = true)
+                        && !it.extension.equals("webp", ignoreCase = true)
+                }
+                .toList()
+
+        return@withContext mp3Files
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getAllSongsFromInternalStorages() = withContext(Dispatchers.IO) {
+        val mp3FilesExt: List<File> = getAllSongsFromStorage(getExternalFilesDir())
+        val mp3Files: List<File> = getAllSongsFromStorage(getFilesDir())
+
+        return@withContext ArrayList<File>().apply {
+            addAll(mp3FilesExt)
+            addAll(mp3Files)
+        }
+    }
+
     private suspend fun getAbsolutePathFile(song: Song): String? =
         getAbsolutePathDir(song = song)?.let { absoluteDirPath ->
             val relativePath = song.filename
