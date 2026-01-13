@@ -12,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.getCustomDirPermission
 import luci.sixsixsix.powerampache2.common.hasPersistedWritePermission
 import luci.sixsixsix.powerampache2.domain.common.Constants
@@ -29,8 +31,6 @@ import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsViewMo
 
     when (enableExternalDirDownloads) {
         true -> {
-            println("aaaa check permissions")
-
             val rootUri = settingsViewModel.playerSettingsStateFlow
                 .collectAsStateWithLifecycle().value.customDownloadLocation
             checkCustomStoragePermission(rootUri) {
@@ -39,7 +39,6 @@ import luci.sixsixsix.powerampache2.presentation.screens.settings.SettingsViewMo
         }
         false -> {
             // do nothing
-            println("aaaa do nothing")
         }
     }
 }
@@ -71,26 +70,27 @@ private fun DirectoryPermissionDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val titleText = stringResource(R.string.settings_storagePermission_dialog_title)
+    val contentText = stringResource(R.string.settings_storagePermission_dialog_text)
+    val confirmText = stringResource(R.string.settings_storagePermission_dialog_confirm)
+    val denyText = stringResource(android.R.string.cancel)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Choose download folder")
+            Text(titleText)
         },
         text = {
-            Text("The app no longer has access to the folder you previously selected.\n" +
-                    "This can happen if system permissions were reset or changed in device settings.\n" +
-                    "\n" +
-                    "Please choose the folder again so the app can continue saving music."
-            )
+            Text(contentText)
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Choose folder")
+                Text(confirmText)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(denyText)
             }
         }
     )

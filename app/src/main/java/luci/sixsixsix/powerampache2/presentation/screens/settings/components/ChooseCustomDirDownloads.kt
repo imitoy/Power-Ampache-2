@@ -72,7 +72,6 @@ private fun currentFolderUriStr(currentFolderUriStr: String?): String {
         ?.replace("com.android.externalstorage.documents", "")
         ?.replace("/tree/", "")
         //?.replace("primary", "")
-        //?.replace("content://com.android.externalstorage.documents/tree/", "")
         ?.replace("%3A", "/")
         ?.replace("%2F", "/")
         ?: noSelectionText

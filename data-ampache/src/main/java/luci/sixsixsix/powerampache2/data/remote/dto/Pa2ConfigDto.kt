@@ -25,6 +25,7 @@ import com.google.gson.annotations.SerializedName
 import luci.sixsixsix.powerampache2.common.ALBUM_HIGHEST_FETCH_LIMIT
 import luci.sixsixsix.powerampache2.common.API_RECORD_PLAY_ENABLE
 import luci.sixsixsix.powerampache2.common.CLEAR_LIBRARY_ON_CATALOG_CLEAN
+import luci.sixsixsix.powerampache2.common.ENABLE_EXT_DIR_DOWNLOADS
 import luci.sixsixsix.powerampache2.common.FETCH_ALBUMS_WITH_ARTISTS
 import luci.sixsixsix.powerampache2.common.FORCE_SKIP_NETWORK_ERROR
 import luci.sixsixsix.powerampache2.common.INTRO_MESSAGE_DEFAULT
@@ -172,7 +173,7 @@ fun Pa2ConfigDto.toPa2Config(configProvider: ConfigProvider) = Pa2Config(
     queueSizeLimit = queueSizeLimit ?: QUEUE_SIZE_LIMIT,
     hideAlbumsRatedBelow = hideAlbumsRatedBelow ?: 0.0f,
     showSettingsExportDbButton = showSettingsExportDbButton == true,
-    enableExternalDirDownloads = enableExternalDirDownloads == true,
+    enableExternalDirDownloads = enableExternalDirDownloads ?: ENABLE_EXT_DIR_DOWNLOADS,
     performOfflineSongsSanityCheck = performOfflineSongsSanityCheck ?: true,
     forceOfflineSongsSanityCheck = forceOfflineSongsSanityCheck == true
 )

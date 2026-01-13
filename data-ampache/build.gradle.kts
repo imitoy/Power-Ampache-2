@@ -91,7 +91,7 @@ dependencies {
 //    implementation(libs.media3.session)
 
 //    implementation(libs.androidx.work.runtime.ktx)
-    implementation("androidx.documentfile:documentfile:1.1.0")
+    implementation(libs.androidx.documentfile)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
