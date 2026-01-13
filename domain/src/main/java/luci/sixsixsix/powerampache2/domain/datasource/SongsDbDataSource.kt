@@ -25,4 +25,6 @@ import luci.sixsixsix.powerampache2.domain.models.Song
 
 interface SongsDbDataSource {
     suspend fun getRecentSongs(): List<Song>
+    suspend fun getAllSongs(): List<Song>
+    suspend fun getOfflineSongs(): List<Song>
 }

@@ -136,3 +136,6 @@
 -dontwarn javax.lang.model.util.SimpleElementVisitor8
 -dontwarn javax.lang.model.util.SimpleTypeVisitor8
 -dontwarn org.graalvm.nativeimage.hosted.Feature
+
+-keep class com.ramcosta.composedestinations.generated.** { *; }
+-keep class luci.sixsixsix.powerampache2.presentation.screens.main.screens.components.CheckCustomStoragePermissionDialogKt { *; }

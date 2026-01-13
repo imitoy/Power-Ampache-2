@@ -21,6 +21,7 @@
  */
 package luci.sixsixsix.powerampache2.domain.models.settings
 
+import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -42,7 +43,8 @@ data class LocalSettings(
     val isOfflineModeEnabled: Boolean,
     val playlistSongsSorting: SortMode,
     val isDownloadsSdCard: Boolean,
-    val sleepTimerMinutes: Int,
+    //val downloadRootUri: String,
+    //val sleepTimerMinutes: Int,
     val saveSongAfterPlayback: Boolean,
     val saveFavouriteSongAfterPlayback: Boolean
 ): Parcelable {
@@ -79,9 +81,10 @@ data class LocalSettings(
                 isOfflineModeEnabled = SETTINGS_DEFAULTS_OFFLINE_MODE,
                 playlistSongsSorting = defaultPlaylistSort,
                 isDownloadsSdCard = SETTINGS_DEFAULTS_DOWNLOADS_SD_CARD,
-                sleepTimerMinutes = 0,
+                //sleepTimerMinutes = 0,
                 saveSongAfterPlayback = SETTINGS_DEFAULTS_SAVE_AFTER_PLAY,
                 saveFavouriteSongAfterPlayback = SETTINGS_DEFAULTS_SAVE_FAVOURITE_AFTER_PLAY,
+                //downloadRootUri = ""
             )
     }
 
@@ -127,15 +130,22 @@ data class LocalSettings(
 
         sbThis.append(this.isDownloadsSdCard)
         sbOthe.append(othe.isDownloadsSdCard)
-
-        sbThis.append(this.sleepTimerMinutes)
-        sbOthe.append(othe.sleepTimerMinutes)
+//
+//        sbThis.append(this.sleepTimerMinutes)
+//        sbOthe.append(othe.sleepTimerMinutes)
 
         sbThis.append(this.saveSongAfterPlayback)
         sbOthe.append(othe.saveSongAfterPlayback)
 
         sbThis.append(this.saveFavouriteSongAfterPlayback)
         sbOthe.append(othe.saveFavouriteSongAfterPlayback)
+
+//        this.downloadRootUri?.let { downloadRootUri ->
+//            sbThis.append(downloadRootUri)
+//        }
+//        othe.downloadRootUri?.let { downloadRootUri ->
+//            sbOthe.append(downloadRootUri)
+//        }
 
         return sbThis.toString() == sbOthe.toString()
     }

@@ -17,4 +17,10 @@ class SongsDbDataSourceImpl @Inject constructor(
 
     override suspend fun getRecentSongs(): List<Song> =
         dao.getSongHistory().map { it.toSong() }
+
+    override suspend fun getAllSongs(): List<Song> =
+        dao.getAllSongs().map { it.toSong() }
+
+    override suspend fun getOfflineSongs(): List<Song> =
+        dao.getOfflineSongs().map { it.toSong() }
 }

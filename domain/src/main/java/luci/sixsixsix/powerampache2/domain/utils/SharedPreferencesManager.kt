@@ -21,6 +21,9 @@
  */
 package luci.sixsixsix.powerampache2.domain.utils
 
+import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.StateFlow
 
 interface SharedPreferencesManager {
@@ -41,11 +44,13 @@ interface SharedPreferencesManager {
 
     // sleep timer
     val sleepTimerEndTimestampFlow: StateFlow<Long>
-
     var sleepTimerEndTimestamp: Long
     var sleepTimerWaitSongEnd: Boolean
+
+    var customDownloadRootUri: Uri?
 
     fun shouldShowIntroDialog(newContent: String ): Boolean
     fun resetBufferDefaults()
     fun resetSleepTimer()
+    fun resetCustomDownloadRootUri()
 }

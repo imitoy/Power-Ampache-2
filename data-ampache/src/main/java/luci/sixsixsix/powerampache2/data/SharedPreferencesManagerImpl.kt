@@ -21,6 +21,9 @@
  */
 package luci.sixsixsix.powerampache2.data
 
+import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import luci.sixsixsix.powerampache2.data.local.delegates.SharedPreferenceDelegateImpl
@@ -53,6 +56,7 @@ private const val KEY_USE_OKHTTP_EXOPLAYER = "luci.sixsixsix.powerampache2.data.
 private const val KEY_INTRO_DIALOG_CONTENT = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.intro.dialog.content"
 private const val KEY_SLEEPTIMER_END_TIMESTAMP_MIN = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.sleeptimer.end.timestamp"
 private const val KEY_SLEEPTIMER_WAIT_SONG_END = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.sleeptimer.waitsongend"
+private const val KEY_CUSTOM_DOWNLOAD_LOCATION = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.dowload.customuri"
 
 private const val SLEEPTIMER_END_TIMESTAMP_RESET = 0
 
@@ -125,6 +129,14 @@ class SharedPreferencesManagerImpl @Inject constructor(
     override var sleepTimerWaitSongEnd: Boolean
         get() = getBool(KEY_SLEEPTIMER_WAIT_SONG_END, true)
         set(value) = setBool(KEY_SLEEPTIMER_WAIT_SONG_END, value)
+
+    override var customDownloadRootUri: Uri?
+        get() = getString(KEY_CUSTOM_DOWNLOAD_LOCATION, "").takeIf { it.isNotBlank() }?.toUri()
+        set(value)  = setString(KEY_CUSTOM_DOWNLOAD_LOCATION, value?.toString() ?: "")
+
+    override fun resetCustomDownloadRootUri() {
+        customDownloadRootUri = null
+    }
 
     override fun shouldShowIntroDialog(newContent: String) =
         Constants.config.shouldShowIntroMessage && newContent != introDialogContent

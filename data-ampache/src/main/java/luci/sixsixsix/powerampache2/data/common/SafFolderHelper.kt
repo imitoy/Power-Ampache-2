@@ -1,0 +1,61 @@
+package luci.sixsixsix.powerampache2.data.common
+
+import android.content.Context
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
+
+class SafFolderHelper(private val context: Context) {
+    fun getOrCreatePath(rootUri: Uri, fullPath: String): DocumentFile {
+        var current = DocumentFile.fromTreeUri(context, rootUri)
+            ?: error("Cannot access root URI")
+
+        val parts = fullPath.split("/").map { it.trim() }.filter { it.isNotEmpty() }
+
+        for (folderName in parts) {
+            val existing = current.findFile(folderName)
+            current = if (existing != null && existing.isDirectory) {
+                existing
+            } else {
+                current.createDirectory(folderName)
+                    ?: error("Cannot create folder: $folderName")
+            }
+        }
+        return current
+    }
+
+    suspend fun getOrCreateFolder(rootUri: Uri, fullPath: String): Uri {
+        return getOrCreatePath(rootUri, fullPath).uri
+    }
+
+    fun writeFile(
+        folder: DocumentFile,
+        fileName: String,
+        mimeType: String?,
+        bytes: ByteArray
+    ): Uri {
+        val existing = folder.findFile(fileName)
+        existing?.delete() // optional: replace existing file
+
+        val file = folder.createFile(
+            if (mimeType.isNullOrBlank()) "application/octet-stream" else mimeType,
+            fileName)
+            ?: error("Cannot create file: $fileName")
+
+        context.contentResolver.openOutputStream(file.uri)?.use {
+            it.write(bytes)
+        }
+
+        return file.uri
+    }
+
+    fun deleteFile(rootUri: Uri, fullPath: String, fileName: String): Boolean {
+        val folder = getOrCreatePath(rootUri, fullPath)
+        val existing = folder.findFile(fileName)
+        return existing?.delete() ?: false
+    }
+
+    suspend fun writeFile(rootUri: Uri, fullPath: String, fileName: String, mimeType: String?, bytes: ByteArray): Uri {
+        val folder = getOrCreatePath(rootUri, fullPath)
+        return writeFile(folder, fileName, mimeType, bytes)
+    }
+}

@@ -21,6 +21,7 @@
  */
 package luci.sixsixsix.powerampache2.presentation.screens.settings
 
+import android.net.Uri
 import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
 import luci.sixsixsix.powerampache2.domain.models.settings.StreamingQuality
 
@@ -43,4 +44,6 @@ sealed class SettingsEvent {
     data object OnResetSleepTimer: SettingsEvent()
     data class OnSetSleepTimer(val timerMins: Int): SettingsEvent()
     data class OnSleepTimerWaitForSongEndChange(val waitForSongEnd: Boolean): SettingsEvent()
+    data class OnChooseCustomDirDownloads(val uri: Uri): SettingsEvent()
+    data object OnClearCustomDirDownloads: SettingsEvent()
 }

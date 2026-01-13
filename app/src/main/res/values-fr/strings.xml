@@ -283,5 +283,10 @@
     <string name="settings_downloadAfterPlay_subtitle">Les chansons seront enregistrées dans le stockage après leur lecture.</string>
     <string name="offlineMode">Mode hors ligne</string>
     <string name="home_section_title_recommended">Recommended</string>
-
+    <string name="sleepTimer_waitEnd">Finish the song before stopping playback.</string>
+    <string name="settings_storagePermission_dialog_title">Choose download folder</string>
+    <string name="settings_storagePermission_dialog_text">The app no longer has access to the folder you previously selected.\n
+        This can happen if system permissions were reset or changed in device settings.\n\n
+        Please choose the folder again so the app can continue saving music.</string>
+    <string name="settings_storagePermission_dialog_confirm">Choose folder</string>
 </resources>

@@ -30,11 +30,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.SONGS_DEFAULT_LIMIT_FETCH
@@ -44,7 +47,11 @@ import luci.sixsixsix.powerampache2.data.common.Constants.CLEAR_TABLE_AFTER_FETC
 import luci.sixsixsix.powerampache2.data.common.Constants.NETWORK_REQUEST_LIMIT_SONGS_SEARCH
 import luci.sixsixsix.powerampache2.data.common.Constants.QUICK_PLAY_MIN_SONGS
 import luci.sixsixsix.powerampache2.data.local.MusicDatabase
+import luci.sixsixsix.powerampache2.data.local.StorageManagerImpl
+import luci.sixsixsix.powerampache2.data.local.entities.DownloadedSongEntity
 import luci.sixsixsix.powerampache2.data.local.entities.HistoryEntity
+import luci.sixsixsix.powerampache2.data.local.entities.SongEntity
+import luci.sixsixsix.powerampache2.data.local.entities.toDownloadedSongEntity
 import luci.sixsixsix.powerampache2.data.local.entities.toHistoryEntity
 import luci.sixsixsix.powerampache2.data.local.entities.toSong
 import luci.sixsixsix.powerampache2.data.local.entities.toSongEntity
@@ -147,6 +154,60 @@ class SongsRepositoryImpl @Inject constructor(
                     }
                 }
             }
+        }
+
+        // this should be a config flag
+        applicationCoroutineScope.launch {
+            // restore downloads in case of db crash
+            if (Constants.getConfig().performOfflineSongsSanityCheck)
+                offlineSongsSanityCheckAndRestore()
+        }
+    }
+
+    private suspend fun getOfflineSongsWithTimeout() = withTimeoutOrNull(300_000) {
+        offlineSongsFlow.drop(1).first()
+    } ?: offlineSongsFlow.value.takeIf { it.isNotEmpty() }
+      ?: songsDbDataSource.getOfflineSongs()
+
+    /**
+     * The restoration is based on what is present in the database.
+     * The restoration is only for files in the app storage, not custom storage.
+     * This is an offline operation, works in both regular and offline mode.
+     * IMPORTANT: this is based on the fact that songs are saved using the original filename,
+     * changing the implementation of saveSong() will break this.
+     * TODO: implement network search for files not present in the db.
+     * TODO: also restore images instead of using the network ones.
+     */
+    private suspend fun offlineSongsSanityCheckAndRestore() {
+        try {
+            if (Constants.config.forceOfflineSongsSanityCheck
+                || getOfflineSongsWithTimeout().isNullOrEmpty()) {
+                val allSongs = songsDbDataSource.getAllSongs()
+                val credentials = getCurrentCredentials()
+                val songsFromStorage = storageManager.getAllSongsFromInternalStorages()
+                val songEntities = mutableListOf<DownloadedSongEntity>()
+                songsFromStorage.forEach { storedFile ->
+                    val storedFilename = storedFile.name
+
+                    val songs = allSongs.filter { songEntity -> songEntity.filename.contains(storedFilename) }
+                    if (songs.isNotEmpty()) {
+                        songs.forEach { song ->
+                            println("aaaa find stored file ${song.filename}")
+                            songEntities.add(
+                                song.toDownloadedSongEntity(
+                                    downloadedSongUri = storedFile.absolutePath,
+                                    downloadedImageUri = song.imageUrl,
+                                    owner = credentials.username,
+                                    serverUrl = credentials.serverUrl
+                                )
+                            )
+                        }
+                    }
+                }
+                dao.addDownloadedSongsIgnoreOnConflict(songEntities.toList())
+            }
+        } catch (e: Exception) {
+            errorHandler.logError(e)
         }
     }
 

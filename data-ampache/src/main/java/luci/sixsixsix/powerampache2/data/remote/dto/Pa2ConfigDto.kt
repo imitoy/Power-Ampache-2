@@ -25,6 +25,7 @@ import com.google.gson.annotations.SerializedName
 import luci.sixsixsix.powerampache2.common.ALBUM_HIGHEST_FETCH_LIMIT
 import luci.sixsixsix.powerampache2.common.API_RECORD_PLAY_ENABLE
 import luci.sixsixsix.powerampache2.common.CLEAR_LIBRARY_ON_CATALOG_CLEAN
+import luci.sixsixsix.powerampache2.common.ENABLE_EXT_DIR_DOWNLOADS
 import luci.sixsixsix.powerampache2.common.FETCH_ALBUMS_WITH_ARTISTS
 import luci.sixsixsix.powerampache2.common.FORCE_SKIP_NETWORK_ERROR
 import luci.sixsixsix.powerampache2.common.INTRO_MESSAGE_DEFAULT
@@ -114,7 +115,6 @@ data class Pa2ConfigDto(
     val songsRecentFetchLimit: Int? = null,
     @SerializedName("hideAlbumsRatedBelow")
     val hideAlbumsRatedBelow: Float? = null,
-
     @SerializedName("queueSizeLimit")
     val queueSizeLimit: Int? = null,
     @SerializedName("removeDuplicateSongs")
@@ -125,9 +125,14 @@ data class Pa2ConfigDto(
     val useIncrementalLimitForAlbums: Boolean? = null,
     @SerializedName("featureString")
     val featureString: String? = null,
-
     @SerializedName("showSettingsExportDbButton")
-    val showSettingsExportDbButton: Boolean? = null
+    val showSettingsExportDbButton: Boolean? = null,
+    @SerializedName("enableExternalDirDownloads")
+    val enableExternalDirDownloads: Boolean? = null,
+    @SerializedName("performOfflineSongsSanityCheck")
+    val performOfflineSongsSanityCheck: Boolean? = null,
+    @SerializedName("forceOfflineSongsSanityCheck")
+    val forceOfflineSongsSanityCheck: Boolean? = null,
 )
 
 /**
@@ -167,7 +172,10 @@ fun Pa2ConfigDto.toPa2Config(configProvider: ConfigProvider) = Pa2Config(
     featureString = featureString ?: "",
     queueSizeLimit = queueSizeLimit ?: QUEUE_SIZE_LIMIT,
     hideAlbumsRatedBelow = hideAlbumsRatedBelow ?: 0.0f,
-    showSettingsExportDbButton = showSettingsExportDbButton == true
+    showSettingsExportDbButton = showSettingsExportDbButton == true,
+    enableExternalDirDownloads = enableExternalDirDownloads ?: ENABLE_EXT_DIR_DOWNLOADS,
+    performOfflineSongsSanityCheck = performOfflineSongsSanityCheck ?: true,
+    forceOfflineSongsSanityCheck = forceOfflineSongsSanityCheck == true
 )
 
 /**
