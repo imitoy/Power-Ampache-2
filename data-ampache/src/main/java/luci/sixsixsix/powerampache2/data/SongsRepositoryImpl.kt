@@ -184,10 +184,8 @@ class SongsRepositoryImpl @Inject constructor(
                 || getOfflineSongsWithTimeout().isNullOrEmpty()) {
                 val allSongs = songsDbDataSource.getAllSongs()
                 val credentials = getCurrentCredentials()
-                val songEntities = mutableListOf<DownloadedSongEntity>()
                 val songsFromStorage = storageManager.getAllSongsFromInternalStorages()
-                println("aaaa stored files tot ${songsFromStorage.size}")
-
+                val songEntities = mutableListOf<DownloadedSongEntity>()
                 songsFromStorage.forEach { storedFile ->
                     val storedFilename = storedFile.name
 
