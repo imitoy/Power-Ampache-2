@@ -27,12 +27,9 @@ import androidx.work.Configuration
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import dagger.hilt.android.HiltAndroidApp
+import luci.sixsixsix.powerampache2.di.ErrorHandlerModule
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.domain.utils.ConfigProvider
-import luci.sixsixsix.powerampache2.domain.utils.ImageLoaderProvider
-import org.acra.config.mailSender
-import org.acra.data.StringFormat
-import org.acra.ktx.initAcra
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -42,46 +39,30 @@ class PowerAmpache2Application : Application(), ImageLoaderFactory, Configuratio
     lateinit var workerFactoryConfiguration: Configuration
 
     @Inject
-    lateinit var imageLoaderBuilder: ImageLoader.Builder
+    lateinit var imageLoader: ImageLoader
 
     @Inject
     lateinit var configProvider: ConfigProvider
+
+    private val crashReportHelper: CrashReportHelper = ErrorHandlerModule.provideCrashReportHelper()
 
     override fun onCreate() {
         super.onCreate()
         // initialize the default values for the config, new values will be fetched by a network call
         Constants.config = configProvider.defaultPa2Config()
+
+//        GlobalScope.launch {
+//            delay(9000)
+//            throw NullPointerException("Test Crash") // Force a crash
+//        }
     }
 
     override fun attachBaseContext(base:Context) {
         super.attachBaseContext(base)
-
-        initAcra {
-            //core configuration:
-            //buildConfigClass = BuildConfig::class.java
-
-            reportFormat = StringFormat.JSON
-            //each plugin you chose above can be configured in a block like this:
-            mailSender {
-                //required
-                mailTo = BuildConfig.ERROR_REPORT_EMAIL
-                //defaults to true
-                reportAsFile = true
-                //defaults to ACRA-report.stacktrace
-                reportFileName = "Crash.txt"
-                //defaults to "<applicationId> Crash Report"
-                subject = getString(R.string.crash_mail_subject)
-                //defaults to empty
-                body = getString(R.string.crash_mail_body)
-            }
-        }
+        crashReportHelper.initialize(this)
     }
 
-    override fun newImageLoader(): ImageLoader = imageLoaderBuilder
-        //.placeholder(R.drawable.placeholder_album_transp)
-        .fallback(R.drawable.placeholder_album_transp)
-        //.error(R.drawable.placeholder_album)
-        .build()
+    override fun newImageLoader(): ImageLoader = imageLoader
 
     override val workManagerConfiguration: Configuration
         get() = workerFactoryConfiguration

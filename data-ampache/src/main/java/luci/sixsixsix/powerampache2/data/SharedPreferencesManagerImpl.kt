@@ -21,6 +21,9 @@
  */
 package luci.sixsixsix.powerampache2.data
 
+import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import luci.sixsixsix.powerampache2.data.local.delegates.SharedPreferenceDelegateImpl
@@ -52,6 +55,9 @@ private const val KEY_PRIORITIZE_TIME_BUFFER = "luci.sixsixsix.powerampache2.dat
 private const val KEY_USE_OKHTTP_EXOPLAYER = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.useokhttpforexoplayer"
 private const val KEY_INTRO_DIALOG_CONTENT = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.intro.dialog.content"
 private const val KEY_SLEEPTIMER_END_TIMESTAMP_MIN = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.sleeptimer.end.timestamp"
+private const val KEY_SLEEPTIMER_WAIT_SONG_END = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.sleeptimer.waitsongend"
+private const val KEY_CUSTOM_DOWNLOAD_LOCATION = "luci.sixsixsix.powerampache2.data.KEY_SETTINGS_PREFERENCE.dowload.customuri"
+
 private const val SLEEPTIMER_END_TIMESTAMP_RESET = 0
 
 @Singleton
@@ -62,6 +68,10 @@ class SharedPreferencesManagerImpl @Inject constructor(
     // every time isAllowAllCertificates changes, this flow is triggered
     private val _isAllowAllCertificatesFlow = MutableStateFlow(isAllowAllCertificates)
     override val isAllowAllCertificatesFlow: StateFlow<Boolean> = _isAllowAllCertificatesFlow
+
+    private val _sleepTimerEndTimestampFlow = MutableStateFlow(sleepTimerEndTimestamp)
+    override val sleepTimerEndTimestampFlow: StateFlow<Long> = _sleepTimerEndTimestampFlow
+
 
     override var backBuffer: Int
         get() = getInt(KEY_BACK_BUFFER, BACK_BUFFER_MS)
@@ -104,7 +114,7 @@ class SharedPreferencesManagerImpl @Inject constructor(
             .also { _isAllowAllCertificatesFlow.value = value }
 
     override var useOkHttpForExoPlayer: Boolean
-        get() = getBool(KEY_USE_OKHTTP_EXOPLAYER, false)
+        get() = getBool(KEY_USE_OKHTTP_EXOPLAYER, true)
         set(value) = setBool(KEY_USE_OKHTTP_EXOPLAYER, value)
 
     override var introDialogContent: String
@@ -113,7 +123,20 @@ class SharedPreferencesManagerImpl @Inject constructor(
 
     override var sleepTimerEndTimestamp: Long
         get() = getString(KEY_SLEEPTIMER_END_TIMESTAMP_MIN, SLEEPTIMER_END_TIMESTAMP_RESET.toString()).toLong()
-        set(value) { setString(KEY_SLEEPTIMER_END_TIMESTAMP_MIN, value.toString()) }
+        set(value)  = setString(KEY_SLEEPTIMER_END_TIMESTAMP_MIN, value.toString())
+            .also { _sleepTimerEndTimestampFlow.value = value }
+
+    override var sleepTimerWaitSongEnd: Boolean
+        get() = getBool(KEY_SLEEPTIMER_WAIT_SONG_END, true)
+        set(value) = setBool(KEY_SLEEPTIMER_WAIT_SONG_END, value)
+
+    override var customDownloadRootUri: Uri?
+        get() = getString(KEY_CUSTOM_DOWNLOAD_LOCATION, "").takeIf { it.isNotBlank() }?.toUri()
+        set(value)  = setString(KEY_CUSTOM_DOWNLOAD_LOCATION, value?.toString() ?: "")
+
+    override fun resetCustomDownloadRootUri() {
+        customDownloadRootUri = null
+    }
 
     override fun shouldShowIntroDialog(newContent: String) =
         Constants.config.shouldShowIntroMessage && newContent != introDialogContent

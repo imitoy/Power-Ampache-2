@@ -1,6 +1,7 @@
 package luci.sixsixsix.powerampache2.domain.utils
 
 import luci.sixsixsix.powerampache2.domain.models.Song
+import java.io.File
 import java.io.InputStream
 
 interface StorageManager {
@@ -8,4 +9,5 @@ interface StorageManager {
     @Throws(Exception::class) suspend fun saveImage(song: Song, inputStream: InputStream): String
     @Throws(Exception::class) suspend fun deleteSong(song: Song): Boolean
     @Throws(Exception::class) suspend fun deleteAll(): Boolean
+    @Throws(Exception::class) suspend fun getAllSongsFromInternalStorages(): List<File>
 }

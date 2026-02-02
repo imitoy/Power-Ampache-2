@@ -21,6 +21,7 @@
  */
 package luci.sixsixsix.powerampache2.di
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
@@ -31,14 +32,20 @@ import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.work.Configuration
+import coil.ImageLoader
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.ConfigProviderImpl
+import luci.sixsixsix.powerampache2.common.DataStringsProviderImpl
+import luci.sixsixsix.powerampache2.alarm.PingScheduler
+import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.ConfigProvider
-import luci.sixsixsix.powerampache2.domain.utils.ImageLoaderProvider
+import luci.sixsixsix.powerampache2.domain.utils.DataStringsProvider
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import luci.sixsixsix.powerampache2.worker.SongDownloadWorkerFactory
 import java.io.File
@@ -76,6 +83,14 @@ object AppModule {
     @Singleton
     fun provideConfigProvider(): ConfigProvider = ConfigProviderImpl()
 
+    /**
+     * android specific strings to be passed to the data layer (which has no access to
+     * the presentation layer).
+     */
+    @Provides
+    fun providerErrorHandlerUserStrings(@ApplicationContext context: Context): DataStringsProvider =
+        DataStringsProviderImpl(context)
+
     @Provides
     fun provideWorkManagerConfiguration(workerFactory: SongDownloadWorkerFactory) = Configuration.Builder()
         .setMinimumLoggingLevel(Log.INFO)
@@ -84,8 +99,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideImageLoaderBuilder(imageLoaderProvider: ImageLoaderProvider) = imageLoaderProvider.getImageLoaderBuilder()
-
+    fun provideImageLoader(imageLoaderProvider: ImageLoader.Builder) = imageLoaderProvider
+        //.placeholder(R.drawable.placeholder_album_transp)
+        .fallback(R.drawable.placeholder_album_transp)
+        //.error(R.drawable.placeholder_album)
+        .build()
 
 
     //    //@ServiceScoped

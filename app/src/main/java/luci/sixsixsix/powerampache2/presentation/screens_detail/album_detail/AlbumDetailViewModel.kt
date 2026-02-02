@@ -48,6 +48,7 @@ import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.shareLink
 import luci.sixsixsix.powerampache2.domain.AlbumsRepository
 import luci.sixsixsix.powerampache2.domain.SongsRepository
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.Album
 import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
 import luci.sixsixsix.powerampache2.domain.usecase.albums.AlbumFromIdUseCase
@@ -59,7 +60,6 @@ import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCa
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleGlobalShuffleUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.songs.IsSongAvailableOfflineUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.songs.OfflineSongsFlow
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import luci.sixsixsix.powerampache2.presentation.common.songitem.SongWrapper
 import javax.inject.Inject
 
@@ -79,7 +79,7 @@ class AlbumDetailViewModel @Inject constructor(
     private val albumFromIdUseCase: AlbumFromIdUseCase,
     private val songsRepository: SongsRepository,
     private val albumsRepository: AlbumsRepository,
-    private val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler,
     private val offlineSongsFlow: OfflineSongsFlow
 ) : ViewModel() {
     var state by mutableStateOf(AlbumDetailState())
@@ -156,7 +156,7 @@ class AlbumDetailViewModel @Inject constructor(
                 try {
                     toggleGlobalShuffleUseCase()
                 } catch (e: Exception) {
-                    playlistManager.updateErrorLogMessage(e.stackTraceToString())
+                    errorHandler.updateErrorLogMessage(e.stackTraceToString())
                 }
             }
 

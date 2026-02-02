@@ -21,7 +21,6 @@
  */
 package luci.sixsixsix.powerampache2.domain.usecase.settings
 
-import androidx.lifecycle.asFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -36,8 +35,6 @@ class LocalSettingsFlowUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<LocalSettings> =
         settingsRepository.settingsLiveData
-            .asFlow()
             .filterNotNull()
             .distinctUntilChanged()
 }
-

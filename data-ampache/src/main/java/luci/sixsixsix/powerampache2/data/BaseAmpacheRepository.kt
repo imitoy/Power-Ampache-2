@@ -21,9 +21,6 @@
  */
 package luci.sixsixsix.powerampache2.data
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.catch
@@ -65,10 +62,11 @@ abstract class BaseAmpacheRepository(
 ) {
     protected val dao = db.dao
 
-    val settingsLiveData: LiveData<LocalSettings?>
+    val settingsLiveData: Flow<LocalSettings?>
         get() = dao.settingsLiveData().distinctUntilChanged().map {
             it?.toLocalSettings()
         }
+
 
     val offlineModeFlow: Flow<Boolean>
         get() =  dao.offlineModeEnabledFlow()
@@ -117,7 +115,7 @@ abstract class BaseAmpacheRepository(
         dao.insertMultiUserUser(user.toMultiUserEntity(serverUrl))
     }
 
-    protected suspend fun getUserNetwork(): User? =
+    protected suspend fun getUserNetwork(reportError: Boolean = true): User? =
         getSession()?.let { session ->
             val cred = getCurrentCredentials()
             try {
@@ -133,7 +131,7 @@ abstract class BaseAmpacheRepository(
                 setUser(user)
                 user
             } catch (e: Exception) {
-                errHandler.logError(e)
+                if (reportError) { errHandler.logError(e) }
                 null
             }
         }
@@ -188,7 +186,13 @@ abstract class BaseAmpacheRepository(
                 id = id,
                 like = like,
                 type = type).apply {
-                error?.let { throw(MusicException(it.toError())) }
+                    error?.let {
+                        throw(MusicException(musicError = it.toError()
+                            .addExtra("type", type.name)
+                            .addExtra("id", id)
+                            .addExtra("like", like.toString())
+                        ))
+                    }
                 if (success != null) {
                     emit(Resource.Success(data = Any(), networkData = Any()))
                 } else {

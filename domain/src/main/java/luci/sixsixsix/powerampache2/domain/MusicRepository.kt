@@ -41,6 +41,5 @@ interface MusicRepository {
     suspend fun getUsername(): String?
     suspend fun register(serverUrl: String, username: String, password: String, email: String, fullName: String? = null): Flow<Resource<Any>>
     suspend fun getGenres(fetchRemote: Boolean): Flow<Resource<List<Genre>>>
-
-    suspend fun getStorageLocation(): String
+    suspend fun isDownloadsSdCard(): Boolean
 }

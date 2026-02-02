@@ -2,9 +2,14 @@ package luci.sixsixsix.powerampache2.di
 
 import android.app.Application
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.room.Room
+import coil.ImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.CachePolicy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +18,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import luci.sixsixsix.powerampache2.ImageLoaderProviderImpl
 import luci.sixsixsix.powerampache2.data.SleepTimerEventBusImpl
 import luci.sixsixsix.powerampache2.data.common.Constants.DB_LOCAL_NAME
 import luci.sixsixsix.powerampache2.data.local.MusicDatabase
@@ -21,16 +25,13 @@ import luci.sixsixsix.powerampache2.data.mapping.AmpacheDateMapper
 import luci.sixsixsix.powerampache2.data.remote.AmpacheOkHttpClientBuilder
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork
 import luci.sixsixsix.powerampache2.data.remote.MainNetwork.Companion.BASE_URL
-import luci.sixsixsix.powerampache2.data.remote.PingScheduler
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_CONNECTION_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_READ_S
 import luci.sixsixsix.powerampache2.domain.common.Constants.TIMEOUT_WRITE_S
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
 import luci.sixsixsix.powerampache2.domain.mappers.DateMapper
-import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.ConfigProvider
-import luci.sixsixsix.powerampache2.domain.utils.ImageLoaderProvider
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -53,14 +54,6 @@ object DataModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-//        val okHttpClient = ampacheOkHttpClientBuilder(false)
-//            .retryOnConnectionFailure(true)
-//            .connectTimeout(TIMEOUT_CONNECTION_S, TimeUnit.SECONDS)
-//            .readTimeout(TIMEOUT_READ_S, TimeUnit.SECONDS)
-//            .writeTimeout(TIMEOUT_WRITE_S, TimeUnit.SECONDS)
-//            .addInterceptor(interceptor)
-//            .build()
-
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
@@ -104,15 +97,6 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideAlarmScheduler(
-        application: Application,
-        sharedPreferencesManager: SharedPreferencesManager,
-        coroutineScope: CoroutineScope
-    ): AlarmScheduler =
-        PingScheduler(application, sharedPreferencesManager, coroutineScope)
-
-    @Provides
-    @Singleton
     fun provideSleepTimerEventBus(): SleepTimerEventBus = SleepTimerEventBusImpl()
 
     @Provides
@@ -150,8 +134,35 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideImageLoaderProvider(
+    fun provideImageLoaderBuilder(
         @ApplicationContext context: Context,
         imageLoaderOkHttpClient: AmpacheOkHttpClientBuilder
-    ): ImageLoaderProvider = ImageLoaderProviderImpl(context, imageLoaderOkHttpClient)
+    ): ImageLoader.Builder = ImageLoader(context).newBuilder()
+        .crossfade(200)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .networkCachePolicy(CachePolicy.ENABLED)
+        //.logger(DebugLogger())
+        .okHttpClient(
+            imageLoaderOkHttpClient(true)
+                //.retryOnConnectionFailure(true)
+                .connectTimeout(TIMEOUT_CONNECTION_S, TimeUnit.SECONDS)
+                .readTimeout(TIMEOUT_READ_S, TimeUnit.SECONDS)
+                .writeTimeout(TIMEOUT_WRITE_S, TimeUnit.SECONDS)
+                .build()
+        )
+        //.respectCacheHeaders(false)
+        .memoryCache {
+            MemoryCache.Builder(context)
+                .maxSizePercent(0.08)
+                .strongReferencesEnabled(false)
+                .build()
+        }
+        .diskCache {
+            DiskCache.Builder()
+                .maxSizePercent(0.10)
+                .directory(context.getDir("paimages", MODE_PRIVATE))
+                .build()
+
+        }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2024  Antonio Tari
+ * Copyright (C) 2025  Antonio Tari
  *
  * This file is a part of Power Ampache 2
  * Ampache Android client application
@@ -32,6 +32,7 @@ const val SETTINGS_IS_DOWNLOAD_SDCARD = true
 const val FORCE_SKIP_NETWORK_ERROR = false
 const val REMOVE_DUPLICATE_SONGS = false
 const val REMOVE_DUPLICATE_ALBUMS = false
+const val ENABLE_EXT_DIR_DOWNLOADS = true
 
 const val CLEAR_LIBRARY_ON_CATALOG_CLEAN = true
 const val FETCH_ALBUMS_WITH_ARTISTS = true
@@ -116,12 +117,16 @@ data class Pa2Config(
     val removeDuplicateSongs: Boolean = REMOVE_DUPLICATE_SONGS,
     val removeDuplicateAlbums: Boolean = REMOVE_DUPLICATE_ALBUMS,
     val hideAlbumsRatedBelow: Float = 0.0f,
+    val featureString: String = "",
 
     // override the limit with the size of the local data, expensive on network on the long term
     val useIncrementalLimitForAlbums: Boolean,// = USE_INCREMENTAL_LIMIT_ALBUMS
 
     // show a button to export the internal sqlite db
-    val showSettingsExportDbButton: Boolean = false
+    val showSettingsExportDbButton: Boolean = false,
+    val enableExternalDirDownloads: Boolean = ENABLE_EXT_DIR_DOWNLOADS,
+    val performOfflineSongsSanityCheck: Boolean = true,
+    val forceOfflineSongsSanityCheck: Boolean = false
 )
 
 fun Pa2Config.isIntroMessageUserString() = shouldShowIntroMessage &&

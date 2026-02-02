@@ -21,7 +21,6 @@
  */
 package luci.sixsixsix.powerampache2.data.local
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -32,7 +31,6 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapConcat
 import luci.sixsixsix.powerampache2.domain.common.Constants
 import luci.sixsixsix.powerampache2.data.local.entities.AlbumEntity
 import luci.sixsixsix.powerampache2.data.local.entities.ArtistEntity
@@ -208,6 +206,9 @@ interface MusicDao {
         LOWER(:query) == albumName) AND $multiUserCondition
         order by (LOWER(title) LIKE '%' || LOWER(:query) || '%') DESC, flag DESC, rating DESC, playCount DESC LIMIT 666""")
     suspend fun searchSong(query: String): List<SongEntity>
+
+    @Query("""SELECT * FROM songentity""")
+    suspend fun getAllSongs(): List<SongEntity>
 
     @Query("""SELECT * FROM songentity WHERE playCount > 0 AND $multiUserCondition order by playCount DESC, flag DESC, rating DESC LIMIT :limit""")
     suspend fun getMostPlayedSongs(limit: Int = Constants.config.songsFrequentFetchLimit): List<SongEntity>
@@ -424,6 +425,9 @@ interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addDownloadedSongs(downloadedSongEntities: List<DownloadedSongEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addDownloadedSongsIgnoreOnConflict(downloadedSongEntities: List<DownloadedSongEntity>)
+
     @Query("""SELECT * FROM downloadedsongentity WHERE LOWER(mediaId) == LOWER(:songId) AND LOWER(artistId) == LOWER(:artistId) AND LOWER(albumId) == LOWER(:albumId) AND $multiUserCondition""")
     suspend fun getDownloadedSong(songId: String, artistId: String, albumId: String): DownloadedSongEntity?
 
@@ -564,7 +568,8 @@ interface MusicDao {
     @Query("DELETE FROM downloadedsongentity")
     suspend fun deleteAllDownloadedSong()
 
-
+    @Query("DELETE FROM downloadedsongentity where LOWER(albumName) == 'incurso'")
+    suspend fun deleteDownloadedSongTest()
 // --- OFFLINE ARTISTS RECOMMENDATIONS ---
 
     @Query("""SELECT recommended.baseArtistId, 
@@ -594,7 +599,7 @@ interface MusicDao {
     suspend fun getSettings(): LocalSettingsEntity?
 
     @Query("""SELECT * FROM localsettingsentity WHERE LOWER(username) == LOWER((SELECT username FROM credentialsentity WHERE primaryKey == '$CREDENTIALS_PRIMARY_KEY'))""")
-    fun settingsLiveData(): LiveData<LocalSettingsEntity?>
+    fun settingsLiveData(): Flow<LocalSettingsEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun writeSettings(localSettingsEntity: LocalSettingsEntity)

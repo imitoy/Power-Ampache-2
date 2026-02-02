@@ -283,5 +283,13 @@
     <string name="settings_downloadAfterPlay_subtitle">Les chansons seront enregistrées dans le stockage après leur lecture.</string>
     <string name="offlineMode">Mode hors ligne</string>
     <string name="home_section_title_recommended">Recommended</string>
-
+    <string name="sleepTimer_waitEnd">Finish the song before stopping playback.</string>
+    <string name="settings_storagePermission_dialog_title">Choose download folder</string>
+    <string name="settings_storagePermission_dialog_text">The app no longer has access to the folder you previously selected.\nThis can happen if system permissions were reset or changed in device settings.\n\nPlease choose the folder again so the app can continue saving music.</string>
+    <string name="settings_customFolder_title">Choose custom folder for offline music</string>
+    <string name="settings_customFolder_subtitle">Current selected folder: %s</string>
+    <string name="settings_customFolder_warning_title">WARNING – Please Read</string>
+    <string name="settings_customFolder_warning_descr">Choosing a custom folder exposes app files to you and your file manager apps. You are responsible for managing these files if you move, modify, or rename them, or perform any action that could break app functionality (including unmounting an SD card).\n\nYou may change the storage location at any time, and the app will continue to work seamlessly with files stored in previously selected locations; however, deleting files from within the app may fail to affect the data on disc. Always check with your file manager to verify successful deletion.</string>
+    <string name="settings_customFolder_reset">Reset</string>
+    <string name="settings_storagePermission_dialog_confirm">Choose folder</string>
 </resources>

@@ -53,7 +53,13 @@ You can add screenshots, diagrams, or mockups here if it helps explain the idea 
 
 ## ✅ Checklist
 
+
+
+## ✅ FINAL CHECKLIST
+
+- [ ] All fields in the report form have been completed; no fields are omitted. Incomplete forms will not be addressed. If a field does not apply, it is filled in with “does not apply” or “not relevant”.
 - [ ] This is not a duplicate of an existing request
 - [ ] I’ve described the problem and why the feature is needed
 - [ ] I’ve added relevant context
-
+- [ ] The issue has been checked against existing issues to avoid duplicates.
+- [ ] Do not tick this checkbox — this is to confirm you are reading the checklist.

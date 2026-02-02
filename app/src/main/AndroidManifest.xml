@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <!-- read external storage for older devices -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 <!--    <uses-permission android:name="@string/permission_plugin_info" />-->
 <!--    <uses-permission android:name="@string/permission_plugin_lyrics" />-->
 
@@ -71,7 +73,7 @@
             </intent-filter>
         </service>
         
-        <receiver android:name=".data.remote.AlarmReceiver"/>
+        <receiver android:name=".alarm.AlarmReceiver"/>
 
         <!-- remove default worker initializer to provide custom one -->
         <provider

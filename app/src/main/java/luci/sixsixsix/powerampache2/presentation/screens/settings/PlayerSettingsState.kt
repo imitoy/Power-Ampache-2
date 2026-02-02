@@ -21,6 +21,7 @@
  */
 package luci.sixsixsix.powerampache2.presentation.screens.settings
 
+import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -36,5 +37,7 @@ data class PlayerSettingsState (
     val prioritizeTimeOverSizeThresholds: Boolean,
     val targetBufferBytes: Int,
     val sleepTimerMins: Int,
-    val sleepTimerEndTime: String?
+    val sleepTimerEndTime: String?,
+    val sleepTimerWaitSongEnd: Boolean,
+    val customDownloadLocation: Uri?
 ): Parcelable

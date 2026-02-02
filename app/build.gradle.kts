@@ -43,7 +43,6 @@ android {
     val dogmazicToken = properties.getProperty("DOGMAZIC_TOKEN")
     val dogmazicUser = properties.getProperty("DOGMAZIC_USER")
     val dogmazicEmail = properties.getProperty("DOGMAZIC_EMAIL")
-    val errorLogUrl = properties.getProperty("URL_ERROR_LOG")
     val localDevUser = properties.getProperty("LOCAL_DEV_USER")
     val localDevPass = properties.getProperty("LOCAL_DEV_PASSWORD")
     val localDevUrl = properties.getProperty("LOCAL_DEVELOPMENT_URL")
@@ -57,8 +56,8 @@ android {
         applicationId = "luci.sixsixsix.powerampache2"
         minSdk = 28
         targetSdk = 35 // 36 will enforce edge-to-edge
-        versionCode = 92
-        versionName = "1.01-86"
+        versionCode = 93
+        versionName = "1.01-87"
         val versionQuote = "This version is powered by the elliptical galaxy in the Virgo Cluster"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -349,14 +348,10 @@ dependencies {
     // JSON serialization
     implementation(libs.gson)
 
-    // --- Room --- //
-//    implementation(libs.room.runtime)
-//    ksp(libs.room.compiler)
-//    // Kotlin Extensions and Coroutines support for Room
-//    implementation(libs.room.ktx)
-
-    // ERROR REPORT
-    implementation(libs.acra.mail)
+    // ERROR REPORT, Fdroid is excluded because ACRA is reported as a tracker
+    "GithubImplementation"(project(":CrashReportHandling"))
+    "PlayStoreImplementation"(project(":CrashReportHandling"))
+    "PlayStoreFreeImplementation"(project(":CrashReportHandling"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

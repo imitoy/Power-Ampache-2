@@ -26,6 +26,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,10 +38,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import luci.sixsixsix.powerampache2.R
+import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.presentation.dialogs.AddToPlaylistOrQueueDialogViewModel
 import luci.sixsixsix.powerampache2.presentation.screens.main.viewmodel.MainViewModel
 import luci.sixsixsix.powerampache2.presentation.screens_detail.song_detail.components.SongDetailContent
@@ -57,11 +60,11 @@ fun SongDetailScreen(
     songDetailViewModel: SongDetailViewModel = hiltViewModel(),
     addToPlaylistOrQueueDialogViewModel: AddToPlaylistOrQueueDialogViewModel = hiltViewModel()
 ) {
-    val song by viewModel.currentSongStateFlow().collectAsState()
+    val song by viewModel.currentSongStateFlow().collectAsStateWithLifecycle()
     val lyricsTag by songDetailViewModel.lyrics.collectAsStateWithLifecycle()
     val pluginLyrics by songDetailViewModel.pluginLyrics.collectAsStateWithLifecycle()
     val pluginInfo by songDetailViewModel.pluginInfo.collectAsStateWithLifecycle()
-    val isChromecastPluginInstalled by songDetailViewModel.isChromecastPluginInstalledStateFlow.collectAsState()
+    val isChromecastPluginInstalled by songDetailViewModel.isChromecastPluginInstalledStateFlow.collectAsStateWithLifecycle()
 
     var rememberSongId by remember { mutableStateOf(song?.id ?: "") }
 
@@ -82,6 +85,13 @@ fun SongDetailScreen(
     }
     val selectedTabIndex = remember { mutableIntStateOf(0) }
 
+    val queuePosStr = getQueuePositionStr(
+        currentQueue = viewModel.currentQueue().value,
+        // currentQueuePosition is USER FACING: start from 1, not zero
+        currentQueuePosition = viewModel.currentQueuePosition() + 1,
+        isScreenOpen = scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+        )
+    val upNextText = "${stringResource(id = R.string.player_queue_upNext)} $queuePosStr"
     val barHeight = dimensionResource(id = R.dimen.queue_dragHandle_height)
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -99,7 +109,9 @@ fun SongDetailScreen(
                 lyrics = lyrics,
                 scaffoldState = scaffoldState,
                 selectedTabIndex = selectedTabIndex,
-                pagerState = pagerState)
+                upNextText = upNextText,
+                pagerState = pagerState
+            )
         },
         sheetShape = RectangleShape,
         sheetSwipeEnabled = true,
@@ -115,3 +127,12 @@ fun SongDetailScreen(
         )
     }
 }
+
+private fun getQueuePositionStr(currentQueue: List<Song>, currentQueuePosition: Int, isScreenOpen: Boolean) =
+    if (
+        currentQueuePosition > 0
+        && currentQueue.isNotEmpty()
+        && currentQueuePosition <= currentQueue.size
+        && isScreenOpen
+    ) "[$currentQueuePosition/${currentQueue.size}]"
+    else ""

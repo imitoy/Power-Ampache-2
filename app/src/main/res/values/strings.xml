@@ -137,8 +137,17 @@
     <string name="sleepTimer_subtitle">Sets a sleep timer to stop music after the specified interval.</string>
     <string name="sleepTimer_time_set">Will stop music at %s (approximate)</string>
     <string name="sleepTimer_time_unset">No timer set</string>
+    <string name="sleepTimer_waitEnd">Finish the song before stopping playback.</string>
     <string name="settings_player_unit_seconds">Seconds</string>
     <string name="settings_player_unit_minutes">Minutes</string>
+    <string name="settings_storagePermission_dialog_title">Choose download folder</string>
+    <string name="settings_storagePermission_dialog_text">The app no longer has access to the folder you previously selected.\nThis can happen if system permissions were reset or changed in device settings.\n\nPlease choose the folder again so the app can continue saving music.</string>
+    <string name="settings_storagePermission_dialog_confirm">Choose folder</string>
+    <string name="settings_customFolder_title">Choose custom folder for offline music</string>
+    <string name="settings_customFolder_subtitle">Current selected folder: %s</string>
+    <string name="settings_customFolder_warning_title">WARNING – Please Read</string>
+    <string name="settings_customFolder_warning_descr">Choosing a custom folder exposes app files to you and your file manager apps. You are responsible for managing these files if you move, modify, or rename them, or perform any action that could break app functionality (including unmounting an SD card).\n\nYou may change the storage location at any time, and the app will continue to work seamlessly with files stored in previously selected locations; however, deleting files from within the app may fail to affect the data on disc. Always check with your file manager to verify successful deletion.</string>
+    <string name="settings_customFolder_reset">Reset</string>
 
 
     <!-- SETTINGS PLAYER -->
@@ -264,7 +273,9 @@
     <!-- do not translate, this is a reference -->
     <string name="bmac_contentDescription" translatable="false">@string/bmac_btn_text</string>
     <string name="patreon_contentDescription" translatable="false">Patreon</string>
+    <string name="about_matrix" translatable="false">Matrix Space</string>
     <string name="about_telegram" translatable="false">Telegram</string>
+    <string name="about_telegram_chat" translatable="false">Telegram Chatroom</string>
     <string name="about_mastodon" translatable="false">Mastodon</string>
     <string name="about_github" translatable="false">Github</string>
     <string name="telegram_contentDescription" translatable="false">@string/about_telegram</string>

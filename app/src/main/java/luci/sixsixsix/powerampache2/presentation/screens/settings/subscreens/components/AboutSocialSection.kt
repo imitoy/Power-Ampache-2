@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants.GITHUB_URL
 import luci.sixsixsix.powerampache2.common.Constants.MASTODON_URL
+import luci.sixsixsix.powerampache2.common.Constants.MATRIX_URL
+import luci.sixsixsix.powerampache2.common.Constants.TELEGRAM_CHAT_URL
 import luci.sixsixsix.powerampache2.common.Constants.TELEGRAM_URL
 import luci.sixsixsix.powerampache2.common.fontDimensionResource
 import luci.sixsixsix.powerampache2.common.openLinkInBrowser
@@ -65,10 +67,28 @@ import luci.sixsixsix.powerampache2.common.openLinkInBrowser
         Spacer(Modifier.height(16.dp))
 
         AboutSocialRow(
+            image = R.drawable.ic_matrix_96_gray,
+            contentDescription = R.string.about_matrix,
+            text = R.string.about_matrix,
+            link = MATRIX_URL
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        AboutSocialRow(
             image = R.drawable.ic_telegram,
             contentDescription = R.string.telegram_contentDescription,
             text = R.string.about_telegram,
             link = TELEGRAM_URL
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        AboutSocialRow(
+            image = R.drawable.ic_telegram,
+            contentDescription = R.string.telegram_contentDescription,
+            text = R.string.about_telegram_chat,
+            link = TELEGRAM_CHAT_URL
         )
 
         Spacer(Modifier.height(12.dp))

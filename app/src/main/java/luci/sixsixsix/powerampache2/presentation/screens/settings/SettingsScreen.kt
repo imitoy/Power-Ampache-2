@@ -21,6 +21,7 @@
  */
 package luci.sixsixsix.powerampache2.presentation.screens.settings
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,15 +77,10 @@ import luci.sixsixsix.powerampache2.R
 import luci.sixsixsix.powerampache2.common.Constants.IS_AMPACHE_DATA
 import luci.sixsixsix.powerampache2.common.exportAndShareRoomDb
 import luci.sixsixsix.powerampache2.domain.common.Constants
-import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
 import luci.sixsixsix.powerampache2.domain.models.ServerInfo
-import luci.sixsixsix.powerampache2.domain.models.settings.StreamingQuality
 import luci.sixsixsix.powerampache2.domain.models.User
-import luci.sixsixsix.powerampache2.ui.getTitleRes
-import luci.sixsixsix.powerampache2.ui.isThemeAvailable
-import luci.sixsixsix.powerampache2.ui.streamQualityDropdownItems
-import luci.sixsixsix.powerampache2.ui.themesDropDownItems
-import luci.sixsixsix.powerampache2.ui.toPowerAmpacheDropdownItem
+import luci.sixsixsix.powerampache2.domain.models.settings.PowerAmpTheme
+import luci.sixsixsix.powerampache2.domain.models.settings.StreamingQuality
 import luci.sixsixsix.powerampache2.presentation.common.DonateConsider
 import luci.sixsixsix.powerampache2.presentation.common.PowerAmpCheckBox
 import luci.sixsixsix.powerampache2.presentation.common.PowerAmpSwitch
@@ -94,9 +90,15 @@ import luci.sixsixsix.powerampache2.presentation.common.donate_btn.DonateButtonC
 import luci.sixsixsix.powerampache2.presentation.destinations.AmpacheUserPreferencesScreenDestination
 import luci.sixsixsix.powerampache2.presentation.destinations.DebugLogsScreenDestination
 import luci.sixsixsix.powerampache2.presentation.dialogs.EraseConfirmDialog
+import luci.sixsixsix.powerampache2.presentation.screens.settings.components.ChooseCustomDirDownloads
 import luci.sixsixsix.powerampache2.presentation.screens.settings.components.PlayerSettingsView
 import luci.sixsixsix.powerampache2.presentation.screens.settings.components.SettingsDropDownMenu
 import luci.sixsixsix.powerampache2.presentation.screens.settings.components.SleepTimerSettingsView
+import luci.sixsixsix.powerampache2.ui.getTitleRes
+import luci.sixsixsix.powerampache2.ui.isThemeAvailable
+import luci.sixsixsix.powerampache2.ui.streamQualityDropdownItems
+import luci.sixsixsix.powerampache2.ui.themesDropDownItems
+import luci.sixsixsix.powerampache2.ui.toPowerAmpacheDropdownItem
 import java.lang.ref.WeakReference
 
 private const val IS_MONO_SWITCH_ENABLED = false
@@ -161,6 +163,7 @@ fun SettingsScreen(
         isPrioritizeTimeOverSizeThresholds = playerSettingsState.prioritizeTimeOverSizeThresholds,
         sleepTimerMins = playerSettingsState.sleepTimerMins,
         endTimeStr = playerSettingsState.sleepTimerEndTime,
+        sleepTimerWaitSongEnd = playerSettingsState.sleepTimerWaitSongEnd,
         onThemeSelected = {
             settingsViewModel.onEvent(SettingsEvent.OnThemeChange(it))
         },
@@ -251,6 +254,7 @@ fun SettingsScreen(
         bufferForPlaybackAfterRebuffer = playerSettingsState.bufferForPlaybackAfterRebuffer,
         cache = playerSettingsState.cacheSizeMb,
         isUseOkHttpPlayer = playerSettingsState.useOkHttpExoplayer,
+        currentFolderUriStr = playerSettingsState.customDownloadLocation?.toString() ?: "",
         onTargetBufferBytesChange = {
             settingsViewModel.onPlayerEvent(PlayerSettingsEvent.OnTargetBufferBytesChange(it))
         },
@@ -262,6 +266,15 @@ fun SettingsScreen(
         },
         onSetSleepTimer = {
             settingsViewModel.onEvent(SettingsEvent.OnSetSleepTimer(it))
+        },
+        onSleepTimerWaitForSongEndChange = {
+            settingsViewModel.onEvent(SettingsEvent.OnSleepTimerWaitForSongEndChange (it))
+        },
+        onChooseCustomDirDownloads = {
+            settingsViewModel.onEvent(SettingsEvent.OnChooseCustomDirDownloads(it))
+        },
+        onClearCustomDirDownloads = {
+            settingsViewModel.onEvent(SettingsEvent.OnClearCustomDirDownloads)
         }
     )
 }
@@ -315,7 +328,9 @@ fun SettingsScreenContent(
     targetBufferBytes: Int,
     sleepTimerMins: Int,
     endTimeStr: String?,
+    sleepTimerWaitSongEnd: Boolean,
     isPrioritizeTimeOverSizeThresholds: Boolean,
+    currentFolderUriStr: String?,
     onThemeSelected: (selected: PowerAmpTheme) -> Unit,
     onStreamingQualitySelected: (selected: StreamingQuality) -> Unit,
     onEnableLoggingValueChange: (newValue: Boolean) -> Unit,
@@ -336,12 +351,15 @@ fun SettingsScreenContent(
     onBackBufferChange: (newValue: Int) -> Unit,
     onMinBufferChange: (newValue: Int) -> Unit,
     onMaxBufferChange: (newValue: Int) -> Unit,
+    onChooseCustomDirDownloads: (newValue: Uri) -> Unit,
+    onClearCustomDirDownloads: () -> Unit,
     onCacheChange: (newValue: Int) -> Unit,
     onBufferForPlaybackChange: (newValue: Int) -> Unit,
     onBufferForPlaybackAfterRebufferChange: (newValue: Int) -> Unit,
     onUseOkHttpExoPlayer: (newValue: Boolean) -> Unit,
     onTargetBufferBytesChange: (newValue: Int) -> Unit,
     onPrioritizeTimeOverSizeThresholdsChange: (newValue: Boolean) -> Unit,
+    onSleepTimerWaitForSongEndChange: (newValue: Boolean) -> Unit,
     onResetValuesClick: () -> Unit,
     onKillAppClick: () -> Unit,
     onResetSleepTimer: () -> Unit,
@@ -417,6 +435,13 @@ fun SettingsScreenContent(
                     onCheckedChange = onDownloadAfterPlayChange,
                     modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
                 )
+                7 -> if (Constants.config.enableExternalDirDownloads) {
+                    ChooseCustomDirDownloads(
+                        currentFolderUriStr,
+                        onFolderSelected = onChooseCustomDirDownloads,
+                        onClearCustomDirDownloads = onClearCustomDirDownloads
+                    )
+                }
                 6 -> PowerAmpSwitch(
                     enabled = isDownloadAfterPlayEnabled,
                     title = R.string.settings_downloadAfterPlay_onlyFavourites_title,
@@ -425,7 +450,7 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(vertical = paddingVerticalItem, horizontal = paddingHorizontalItem)
                 )
                 // DELETE ALL DOWNLOADS
-                7 -> TextWithSubtitle(
+                8 -> TextWithSubtitle(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -472,7 +497,9 @@ fun SettingsScreenContent(
                     sliderValue = sleepTimerMins,
                     endTimeStr = endTimeStr,
                     onReset = onResetSleepTimer,
-                    onValueChange = onSetSleepTimer
+                    onValueChange = onSetSleepTimer,
+                    sleepTimerWaitSongEnd = sleepTimerWaitSongEnd,
+                    onSleepTimerWaitForSongEndChange = onSleepTimerWaitForSongEndChange
                 )
                 // NORMALIZE VOLUME SWITCH
                 11 -> PowerAmpSwitch(
@@ -829,6 +856,11 @@ fun PreviewSettingsScreen() {
         onSetSleepTimer = {},
         onResetSleepTimer = {},
         sleepTimerMins = 11,
-        endTimeStr = ""
+        endTimeStr = "",
+        onSleepTimerWaitForSongEndChange = {},
+        sleepTimerWaitSongEnd = true,
+        currentFolderUriStr = "",
+        onChooseCustomDirDownloads = {},
+        onClearCustomDirDownloads = {}
     )
 }

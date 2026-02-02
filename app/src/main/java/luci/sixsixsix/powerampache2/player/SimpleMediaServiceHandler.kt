@@ -79,7 +79,7 @@ class SimpleMediaServiceHandler @Inject constructor(
         L("SERVICE- SimpleMediaServiceHandler init")
         applicationPermanentCoroutineScope.launch {
             playerManager.playerState.filterNotNull().collectLatest { pl ->
-                errorHandler.logError("SimpleMediaServiceHandler.init: (SERVICE-) new player received, adding listener")
+                errorHandler.updateErrorLogMessage("SimpleMediaServiceHandler.init: (SERVICE-) new player received, adding listener")
                 withContext(Dispatchers.Main) {
                     pl.removeListener(this@SimpleMediaServiceHandler) // this shouldn't be necessary
                     pl.addListener(this@SimpleMediaServiceHandler)
@@ -378,6 +378,7 @@ class SimpleMediaServiceHandler @Inject constructor(
                     L("SERVICE- stopping player, errors in 5 secs: ${errorCounter - count}")
                     player().stop()
                     playlistManager.reset()
+                    errorHandler.resetMessages()
                     //player().release()
                     //context.stopService(Intent(context, SimpleMediaService::class.java))
                 }

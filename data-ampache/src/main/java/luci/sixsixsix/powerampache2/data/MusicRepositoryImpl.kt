@@ -89,8 +89,7 @@ class MusicRepositoryImpl @Inject constructor(
     db: MusicDatabase,
     private val errorHandler: ErrorHandler,
     private val configProvider: ConfigProvider,
-    applicationCoroutineScope: CoroutineScope,
-    @ApplicationContext private val context: Context
+    applicationCoroutineScope: CoroutineScope
 ): BaseAmpacheRepository(api, db, errorHandler), MusicRepository {
     private val _serverInfoStateFlow = MutableStateFlow(ServerInfo())
     override val serverInfoStateFlow: StateFlow<ServerInfo> = _serverInfoStateFlow
@@ -120,7 +119,8 @@ class MusicRepositoryImpl @Inject constructor(
                 if (newToken != currentAuthToken || currentUser == null) {
                     currentAuthToken = newToken
                     try {
-                        currentUser = getUserNetwork()
+                        // do not report error here, this can be noisy
+                        currentUser = getUserNetwork(reportError = false)
                     } catch (e: Exception) {
                         errorHandler.logError(e)
                     }
@@ -148,6 +148,7 @@ class MusicRepositoryImpl @Inject constructor(
                 configProvider.defaultPa2Config()
             }
         }
+        Constants.setConfig(Constants.config)
     }
 
     /**
@@ -242,7 +243,7 @@ class MusicRepositoryImpl @Inject constructor(
             // server info always available
             val servInfo = pingResponse.toServerInfo()
             L("aaaa setting live data for server info ${servInfo.version}")
-            _serverInfoStateFlow.value = servInfo
+            updateServerInfo(servInfo)
             Resource.Success(Pair(servInfo, getSession()))
         } catch (e: IOException) {
             Resource.Error(message = "cannot load data", exception = e)
@@ -253,6 +254,12 @@ class MusicRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(message = "cannot load data", exception = e)
         }
+
+    private fun updateServerInfo(servInfo: ServerInfo) {
+        _serverInfoStateFlow.value = servInfo
+        // TODO: bad pattern, both the repository and the error handler should listen to the serverInfo state
+        errorHandler.serverInfo = servInfo
+    }
 
     override suspend fun autoLogin() = getCredentials()?.let {
         authorize(
@@ -443,10 +450,6 @@ class MusicRepositoryImpl @Inject constructor(
         emit(Resource.Loading(false))
     }.catch { e -> errorHandler("logout()", e, this) }
 
-    override suspend fun getStorageLocation(): String =
-        if (dao.getSettings()?.toLocalSettings()?.isDownloadsSdCard == true) {
-            context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)?.absolutePath ?: context.filesDir.absolutePath
-        } else {
-            context.filesDir.absolutePath
-        }
+    override suspend fun isDownloadsSdCard(): Boolean =
+        dao.getSettings()?.toLocalSettings()?.isDownloadsSdCard == true
 }

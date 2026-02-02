@@ -41,6 +41,7 @@ fun MainViewModel.observeSession() {
                             // new session and not playing and RESET_QUEUE_ON_NEW_SESSION == true
                             logToErrorLogs("REFRESH AUTH !isPlaying")
                             playlistManager.reset()
+                            errorHandler.resetMessages()
                             resetCachedQueueState()
                             stopMusicService()
                         } else {

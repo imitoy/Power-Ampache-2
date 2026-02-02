@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.domain.PlaylistsRepository
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.Playlist
 import luci.sixsixsix.powerampache2.domain.models.PlaylistType
 import luci.sixsixsix.powerampache2.domain.models.Song
@@ -53,7 +54,8 @@ class AddToPlaylistOrQueueDialogViewModel @Inject constructor(
     userFlowUseCase: UserFlowUseCase,
     playlistsFlow: PlaylistsFlow,
     private val playlistsUseCase: PlaylistsUseCase,
-    private val playlistManager: MusicPlaylistManager
+    private val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler
 ) : ViewModel() {
     var state by mutableStateOf(AddToPlaylistOrQueueDialogState())
     private var isEndOfDataReached: Boolean = false
@@ -139,7 +141,7 @@ class AddToPlaylistOrQueueDialogViewModel @Inject constructor(
                     is Resource.Success -> {
                         result.data?.let {
                             getPlaylists()
-                            playlistManager.updateUserMessage("Playlist $playlistName created and songs added")
+                            errorHandler.updateUserMessage("Playlist $playlistName created and songs added")
                         }
                     }
                     is Resource.Error ->
@@ -157,7 +159,7 @@ class AddToPlaylistOrQueueDialogViewModel @Inject constructor(
                     is Resource.Success -> {
                         result.data?.let {
                             getPlaylists()
-                            playlistManager.updateUserMessage("Song added to playlist")
+                            errorHandler.updateUserMessage("Song added to playlist")
                         }
                     }
                     is Resource.Error ->
@@ -177,7 +179,7 @@ class AddToPlaylistOrQueueDialogViewModel @Inject constructor(
                     is Resource.Success -> {
                         result.data?.let {
                             getPlaylists()
-                            playlistManager.updateUserMessage("Songs added to playlist ${playlist.name}")
+                            errorHandler.updateUserMessage("Songs added to playlist ${playlist.name}")
                         }
                     }
                     is Resource.Error ->

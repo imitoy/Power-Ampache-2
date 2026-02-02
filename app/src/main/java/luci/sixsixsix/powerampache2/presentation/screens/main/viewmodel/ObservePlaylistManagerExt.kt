@@ -44,7 +44,7 @@ fun MainViewModel.observePlaylistManager() {
     }
 
     viewModelScope.launch {
-        playlistManager.logMessageUserReadableState.collectLatest { logMessageState ->
+        errorHandler.logMessageUserReadableState.collectLatest { logMessageState ->
             logMessageState.logMessage?.let { logMessage ->
                 // do not show errors in offline mode unless in cases specified above
                 val isOfflineModeEnabled = isOfflineModeEnabledUseCase()

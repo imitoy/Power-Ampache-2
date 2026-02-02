@@ -17,22 +17,33 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.common.Constants.SERVICE_STOP_TIMEOUT
 import luci.sixsixsix.powerampache2.domain.SleepTimerEventBus
 import luci.sixsixsix.powerampache2.domain.common.WeakContext
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerEndTimestampFlow
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerResetUseCase
+import luci.sixsixsix.powerampache2.domain.usecase.settings.SleepTimerWaitSongEnd
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@UnstableApi
 @Singleton
 class MusicController @Inject constructor(
     @ApplicationContext private val context: Context,
     val weakContext: WeakContext,
     private val sleepTimerEventBus: SleepTimerEventBus,
+    private val sleepTimerWaitSongEnd: SleepTimerWaitSongEnd,
+    private val sleepTimerEndTimestampFlow: SleepTimerEndTimestampFlow,
+    private val sleepTimerResetUseCase: SleepTimerResetUseCase,
     private val applicationCoroutineScope: CoroutineScope,
-    val playlistManager: MusicPlaylistManager
+    val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler
 ) {
     private val serviceIntent = Intent(context, SimpleMediaService::class.java)
     private var controller: MediaController? = null
@@ -46,14 +57,50 @@ class MusicController @Inject constructor(
             initController(context)
         }
 
+        // There are 2 ways to stop the music using the timer, if the setting"sleepTimerWaitSongEnd"
+        // is not enabled, stop the music right away, to do so, listen to the alarm event sent
+        // through sleepTimerEventBus.sleepTimerEvents.
+        // If the setting"sleepTimerWaitSongEnd" is enabled, ignore the callback from the alarm
+        // manager and instead listen to the songs state, and every song change check if the timer
+        // threshold has passed. If so, stop the music.
+        // pauseAndResetOnTimer() is called in both cases. It will reset the setting sleepTimerEndTimestamp,
+        // when this variable is set to 0, the alarm manager will cancel the alarm.
+        // See PingScheduler.init for details.
+
         // Listen to sleep timer events
         applicationCoroutineScope.launch {
             sleepTimerEventBus.sleepTimerEvents.collect {
                 withContext(Dispatchers.Main) {
-                    resetStopMusic()
+                    if (!sleepTimerWaitSongEnd())
+                        pauseAndResetOnTimer()
                 }
             }
         }
+
+        // Callback triggered every time a new song is being played
+        applicationCoroutineScope.launch {
+            playlistManager.currentSongState.filterNotNull().collectLatest { newSong ->
+                val sleepTimerEndTimestamp = sleepTimerEndTimestampFlow().value
+                if (
+                    sleepTimerWaitSongEnd()
+                    && sleepTimerEndTimestamp > 0
+                    && sleepTimerEndTimestamp <= System.currentTimeMillis()
+                    ) {
+                    pauseAndResetOnTimer()
+                }
+            }
+        }
+    }
+
+    private fun pause() = runOnMain { controller?.pause() }
+
+    private suspend fun pauseAndResetOnTimer() = try {
+        sleepTimerResetUseCase()
+        pause()
+        //resetStopMusic()
+    } catch (e: Exception) {
+        resetStopMusic()
+        errorHandler.logError(e)
     }
 
     @OptIn(UnstableApi::class)
@@ -128,6 +175,7 @@ class MusicController @Inject constructor(
     fun resetStopMusic() {
         try {
             playlistManager.reset()
+            errorHandler.resetMessages()
             stopMusicService()
         } catch (e: Exception) {
             L.e(e)

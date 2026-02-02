@@ -21,20 +21,18 @@
  */
 package luci.sixsixsix.powerampache2.di
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import luci.sixsixsix.powerampache2.data.ErrorHandlerImpl
-import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
-import javax.inject.Singleton
+import android.app.Application
+import luci.sixsixsix.powerampache2.CrashReportHelper
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class ErrorHandlerModule {
-    @Binds
-    @Singleton
-    abstract fun bindErrorHandler(
-        errorHandlerImpl: ErrorHandlerImpl
-    ): ErrorHandler
+class ErrorHandlerModule {
+    companion object {
+        /**
+         * empty implementation for no report crash
+         */
+        fun provideCrashReportHelper(): CrashReportHelper = object : CrashReportHelper {
+            override fun initialize(application: Application) {
+                // DO NOTHING
+            }
+        }
+    }
 }

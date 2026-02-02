@@ -38,6 +38,7 @@ import luci.sixsixsix.mrlog.L
 import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.delegates.FetchArtistSongsHandler
 import luci.sixsixsix.powerampache2.common.delegates.FetchArtistSongsHandlerImpl
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.models.Artist
 import luci.sixsixsix.powerampache2.domain.models.Song
 import luci.sixsixsix.powerampache2.domain.models.settings.LocalSettings
@@ -50,7 +51,6 @@ import luci.sixsixsix.powerampache2.domain.usecase.plugin.IsInfoPluginInstalled
 import luci.sixsixsix.powerampache2.domain.usecase.settings.LocalSettingsFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.OfflineModeFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.settings.ToggleGlobalShuffleUseCase
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -66,7 +66,7 @@ class ArtistDetailViewModel @Inject constructor(
     private val toggleGlobalShuffle: ToggleGlobalShuffleUseCase,
     private val isInfoPluginInstalled: IsInfoPluginInstalled,
     private val artistDataFromPluginUseCase: ArtistDataFromPluginUseCase,
-    private val playlistManager: MusicPlaylistManager
+    private val errorHandler: ErrorHandler
 ) : ViewModel(), FetchArtistSongsHandler by FetchArtistSongsHandlerImpl(songsFromArtistUseCase) {
 
     var state by mutableStateOf(ArtistDetailState())
@@ -103,7 +103,7 @@ class ArtistDetailViewModel @Inject constructor(
                 try {
                     toggleGlobalShuffle()
                 } catch (e: Exception) {
-                    playlistManager.updateErrorLogMessage(e.stackTraceToString())
+                    errorHandler.updateErrorLogMessage(e.stackTraceToString())
                 }
             }
         }

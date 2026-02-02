@@ -21,7 +21,6 @@
  */
 package luci.sixsixsix.powerampache2.data.local
 
-import androidx.lifecycle.asFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -39,7 +38,7 @@ import javax.inject.Singleton
 class DbDataSourceImpl @Inject constructor(val db: MusicDatabase): DbDataSource {
     override val settingsFlow: Flow<LocalSettings>
         get() = db.dao.settingsLiveData()
-            .asFlow()
+            //.asFlow()
             .filterNotNull()
             .map { it.toLocalSettings() }
 

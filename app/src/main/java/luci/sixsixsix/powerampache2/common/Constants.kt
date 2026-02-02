@@ -35,7 +35,7 @@ object Constants {
     const val PLAY_LOAD_TIMEOUT = 10000L
     const val LOGIN_SCREEN_TIMEOUT = 1500L
     const val HOME_LOADING_TIMEOUT = 1000L
-    const val SERVICE_STOP_TIMEOUT = 2000L
+    const val SERVICE_STOP_TIMEOUT = 500L
     const val SEARCH_TIMEOUT = 1200L    // allow user to type before starting search
 
     // DEBUG VALUES
@@ -54,6 +54,8 @@ object Constants {
     const val GPLV3_URL = "https://github.com/icefields/Power-Ampache-2/blob/main/LICENSE.md"
     const val TELEGRAM_IMG_URL = "https://static-00.iconduck.com/assets.00/telegram-icon-512x512-4sztjer8.png"
     const val TELEGRAM_URL = "https://t.me/PowerAmpache"
+    const val TELEGRAM_CHAT_URL = "https://t.me/PowerAmpache2"
+    const val MATRIX_URL = "https://matrix.to/#/#power-ampache:matrix.org"
     const val MASTODON_IMG_URL = "https://github.com/icefields/Power-Ampache-2/assets/149625124/81e35dc2-d81c-46ed-9321-4461349dc8e7"
     const val MASTODON_URL = "https://floss.social/@powerampache"
     const val PATREON_IMG_URL = "https://github.com/user-attachments/assets/3318ab05-3c7e-42dd-8784-f12129c0915d"

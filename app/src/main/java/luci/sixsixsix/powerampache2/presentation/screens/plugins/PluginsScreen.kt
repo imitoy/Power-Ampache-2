@@ -105,7 +105,8 @@ fun PluginsScreenContent(
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         )
 
-        Text("Plugin rollout will begin in the coming days/weeks; check your favorite store regularly or follow the Telegram group for updates. If you're interested in beta versions of the plugins, they will be released exclusively in the Telegram group.",
+        Text(
+            "Check your preferred app store regularly, or follow the Matrix Space and/or the Telegram group for updates and plugin release announcements. Beta versions are shared exclusively in the Matrix Space and Telegram group.",
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.tertiary,
             lineHeight = 11.sp,

@@ -1,0 +1,10 @@
+— [NEW] Create/Play a queue from genre.
+— [NEW] Custom download location option.
+— Fixed song deletion bug.
+— Bug fixes and improvements.
+— Library updates.
+— Improved error logging.
+— Improved init config.
+— Added config action to sanitize downloaded songs db-table.
+— (contd) Code refactoring and cleanup.
+

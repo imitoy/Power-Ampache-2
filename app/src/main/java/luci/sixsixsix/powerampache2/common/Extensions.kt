@@ -26,8 +26,11 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.annotation.DimenRes
 import androidx.compose.animation.core.animateFloat
@@ -122,6 +125,27 @@ fun Context.exportSong(song: Song, offlineUri: String) {
     }
 }
 
+@Composable
+fun Context.getCustomDirPermission(onFolderSelected: (Uri) -> Unit) =
+    rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri: Uri? ->
+        uri?.let {
+            contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            onFolderSelected(it)
+        }
+    }
+
+fun Context.hasPersistedWritePermission(uri: Uri): Boolean =
+    contentResolver.persistedUriPermissions.any { permission ->
+        permission.uri == uri &&
+                permission.isWritePermission &&
+                permission.isReadPermission
+    }
+
 /**
  * Starts the Cast plugin activity.
  */
@@ -173,6 +197,23 @@ fun Context.exportAndShareRoomDb(dbName: String = "musicdb.db") {
         Toast.makeText(this, "Error exporting DB: ${e.message}", Toast.LENGTH_LONG).show()
     }
 }
+
+fun Context.isFeatureAvailable(feature: String): Boolean {
+    try {
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(
+                packageName,
+                PackageManager.PackageInfoFlags.of(PackageManager.GET_CONFIGURATIONS.toLong())
+            )
+        } else {
+            packageManager.getPackageInfo(packageName, PackageManager.GET_CONFIGURATIONS)
+        }
+
+        return packageInfo.reqFeatures?.any { it.name == feature } ?: false
+    } catch (e: Exception) {
+        return false
+    }
+} // applicationContext.packageManager.hasSystemFeature(feature)
 
 fun getVersionInfoString(context: Context) = try {
     val pInfo: PackageInfo =

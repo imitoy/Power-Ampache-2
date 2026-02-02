@@ -28,6 +28,7 @@ import dagger.hilt.components.SingletonComponent
 import luci.sixsixsix.powerampache2.data.AlbumsRepositoryImpl
 import luci.sixsixsix.powerampache2.data.AmpachePreferencesRepositoryImpl
 import luci.sixsixsix.powerampache2.data.ArtistsRepositoryImpl
+import luci.sixsixsix.powerampache2.data.error.ErrorHandlerImpl
 import luci.sixsixsix.powerampache2.data.MusicRepositoryImpl
 import luci.sixsixsix.powerampache2.data.PlaylistsRepositoryImpl
 import luci.sixsixsix.powerampache2.data.PluginRepositoryImpl
@@ -73,6 +74,7 @@ import luci.sixsixsix.powerampache2.domain.datasource.PlaylistsRemoteDataSource
 import luci.sixsixsix.powerampache2.domain.datasource.SongsDbDataSource
 import luci.sixsixsix.powerampache2.domain.datasource.SongsOfflineDataSource
 import luci.sixsixsix.powerampache2.domain.datasource.SongsRemoteDataSource
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
 import luci.sixsixsix.powerampache2.domain.plugin.chromecast.ChromecastPluginDataSource
 import luci.sixsixsix.powerampache2.domain.plugin.info.InfoPluginDataSource
 import luci.sixsixsix.powerampache2.domain.plugin.lyrics.LyricsPluginDataSource
@@ -85,6 +87,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindErrorHandler(
+        errorHandlerImpl: ErrorHandlerImpl
+    ): ErrorHandler
 
     @Binds
     @Singleton

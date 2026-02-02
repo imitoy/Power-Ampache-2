@@ -21,35 +21,34 @@
  */
 package luci.sixsixsix.powerampache2.presentation.screens.offline
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import luci.sixsixsix.powerampache2.domain.usecase.songs.OfflineSongsFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class OfflineSongsViewModel @Inject constructor(
-    private val offlineSongsFlow: OfflineSongsFlow
+    offlineSongsFlow: OfflineSongsFlow
 ) : ViewModel() {
-    var state by mutableStateOf(OfflineSongsState())
-
-//    val songsStateFlow = repository.offlineSongsFlow
-//        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
-
-    init {
-        state = state.copy(isLoading = true)
-        viewModelScope.launch {
-            offlineSongsFlow().collect { songs ->
-                state = state.copy(songs = songs, isLoading = false)
+    val state: StateFlow<OfflineSongsState> = offlineSongsFlow()
+            .map { songs ->
                 // TODO check consistency of downloaded songs and database entries every time,
                 //  delete data accordingly. Do this in data layer
+                OfflineSongsState(
+                    songs = songs,
+                    isLoading = false
+                )
             }
-        }
-    }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = OfflineSongsState(isLoading = true)
+            )
 
     // empty, remove!
     fun onEvent(event: OfflineSongsEvent) { when(event) {is OfflineSongsEvent.OnSongSelected -> {} } }

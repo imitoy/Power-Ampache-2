@@ -46,11 +46,12 @@ import luci.sixsixsix.powerampache2.common.Resource
 import luci.sixsixsix.powerampache2.common.disableSSLCertificateVerify
 import luci.sixsixsix.powerampache2.domain.MusicRepository
 import luci.sixsixsix.powerampache2.domain.common.sha256
+import luci.sixsixsix.powerampache2.domain.errors.ErrorHandler
+import luci.sixsixsix.powerampache2.domain.usecase.PingUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.SessionFlowUseCase
 import luci.sixsixsix.powerampache2.domain.usecase.UserFlowUseCase
 import luci.sixsixsix.powerampache2.domain.utils.AlarmScheduler
 import luci.sixsixsix.powerampache2.domain.utils.SharedPreferencesManager
-import luci.sixsixsix.powerampache2.player.MusicPlaylistManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,8 +60,9 @@ class AuthViewModel @Inject constructor(
     private val repository: MusicRepository,
     userFlowUseCase: UserFlowUseCase,
     sessionFlowUseCase: SessionFlowUseCase,
-    private val playlistManager: MusicPlaylistManager,
+    private val errorHandler: ErrorHandler,
     private val sharedPreferencesManager: SharedPreferencesManager,
+    private val pingUseCase: PingUseCase,
     pingScheduler: AlarmScheduler,
     @ApplicationContext private val application: Context,
     savedStateHandle: SavedStateHandle
@@ -81,7 +83,7 @@ class AuthViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
-    val messagesStateFlow = playlistManager.logMessageUserReadableState
+    val messagesStateFlow = errorHandler.logMessageUserReadableState
         .mapNotNull { it.logMessage }
         .filterNotNull()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), "")
@@ -158,7 +160,7 @@ class AuthViewModel @Inject constructor(
      *  try to login with saved auth token
      *  ping will refresh the token if previous one still valid
      */
-    private suspend fun pingServerSync() = repository.ping().let { ping ->
+    private suspend fun pingServerSync() = pingUseCase().let { ping ->
         val newSession = ping.data?.second
         //val isSessionNull = newSession == null
         when (ping) {
@@ -177,7 +179,7 @@ class AuthViewModel @Inject constructor(
             is Resource.Success -> result.data?.let { auth ->
                 L("AuthViewModel autologin", auth)
                 // remove error messages after login
-                playlistManager.updateErrorLogMessage("")
+                errorHandler.updateErrorLogMessage("")
                 _isLoginCompletedStateFlow.value = true
             }
             is Resource.Error -> state =
@@ -208,7 +210,7 @@ class AuthViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         result.data?.let {
-                            playlistManager.updateUserMessage(application.getString(R.string.loginScreen_register_success))
+                            errorHandler.updateUserMessage(application.getString(R.string.loginScreen_register_success))
                         }
                     }
 
@@ -242,7 +244,7 @@ class AuthViewModel @Inject constructor(
                             // clear credentials after login
                             state = state.copy(username = "", authToken = "", password = "")
                             // clear any user facing message on the UI
-                            playlistManager.updateUserMessage("")
+                            errorHandler.updateUserMessage("")
                         }
                     }
                     is Resource.Error -> state = state.copy(isLoading = false)
