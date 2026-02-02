@@ -1,0 +1,4 @@
+— [NEW] Create/Play a queue from genre.
+— [NEW] Custom download location option.
+— Bug fixes and improvements.
+— Library updates.
