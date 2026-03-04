@@ -6,7 +6,7 @@
     <string name="albumDetailScreen_infoSection_songs">歌曲数</string>
     <string name="albumDetailScreen_infoSection_time">总时长</string>
     <string name="playlistDetailScreen_infoSection_avgRating">平均评分</string>
-    <string name="playlistItem_songCount">%s 首歌曲</string>
+    <string name="playlistItem_songCount">%s首歌曲</string>
     <string name="topBar_search_hint">搜索歌曲、专辑、歌手、歌单</string>
     <string name="main_tab_title_albums">专辑</string>
     <string name="main_tab_title_home">主页</string>
@@ -60,7 +60,7 @@
 
 
     <string name="crash_mail_subject">崩溃报告</string>
-    <string name="crash_mail_body">崩溃报告。感谢。</string>
+    <string name="crash_mail_body">崩溃报告的数据。感谢！</string>
 
     <string name="error_offline">无法连接到服务器</string>
 
@@ -70,7 +70,7 @@
 
     <!-- SETTINGS -->
     <string name="quality_veryHigh_title">极高音质</string>
-    <string name="quality_veryHigh_subtitle">320kbps 或 flac（无转码）</string>
+    <string name="quality_veryHigh_subtitle">320kbps或flac（无转码）</string>
     <string name="quality_high_title">高音质</string>
     <string name="quality_high_subtitle">256kbps</string>
     <string name="quality_medium_title">中音质</string>
@@ -135,7 +135,7 @@
     <string name="offline_noData_warning">您还没有下载任何歌曲</string>
     <string name="sleepTimer_title">睡眠定时器</string>
     <string name="sleepTimer_subtitle">设置睡眠定时器，在指定时间后停止音乐。</string>
-    <string name="sleepTimer_time_set">将在大约 %s 时停止音乐</string>
+    <string name="sleepTimer_time_set">将在大约%s时停止音乐</string>
     <string name="sleepTimer_time_unset">未设置定时器</string>
     <string name="sleepTimer_waitEnd">播放完当前歌曲后再停止播放。</string>
     <string name="settings_player_unit_seconds">秒</string>
@@ -145,13 +145,13 @@
     <string name="settings_storagePermission_dialog_confirm">选择文件夹</string>
     <string name="settings_customFolder_title">选择自定义离线模式文件夹</string>
     <string name="settings_customFolder_subtitle">当前选中的文件夹: %s</string>
-    <string name="settings_customFolder_warning_title">警告 – 请阅读</string>
-    <string name="settings_customFolder_warning_descr">选择自定义文件夹会将应用文件暴露给您和您的文件管理器应用。如果您移动、修改、重命名这些文件，或执行任何可能破坏应用功能的操作（包括卸载SD卡），您将管理这些文件并为其负责。\n\n您可以随时更改存储位置，应用将继续与先前选择位置中存储的文件无缝协作；但是，在应用内删除文件可能无法影响磁盘上的数据。请务必使用文件管理器检查以确保删除成功。</string>
+    <string name="settings_customFolder_warning_title">警告 - 请阅读</string>
+    <string name="settings_customFolder_warning_descr">选择自定义文件夹会将应用文件暴露给您和您的文件管理器应用。如果您移动、修改、重命名这些文件，或执行任何可能破坏应用功能的操作（包括卸载SD卡），您将管理这些文件并为其负责。\n\n您可以随时更改存储位置，应用将继续与先前选择位置中存储的文件无缝切换；但是，在应用内删除文件可能无法影响磁盘上的数据。请务必使用文件管理器检查以确保删除成功。</string>
     <string name="settings_customFolder_reset">重置</string>
 
 
     <!-- SETTINGS PLAYER -->
-    <string name="settings_playerAdvancedSettings_title">播放器高级设置（需要重启应用）</string>
+    <string name="settings_playerAdvancedSettings_title">播放器高级设置（需重启应用）</string>
     <string name="settings_playerAdvancedSettings_subtitle">若您遇到播放问题，如卡顿、歌曲中断、曲目启动延迟等，请调整这些设置</string>
     <string name="settings_playerAdvancedSettings_warning">若要应用缓冲区设置，请重启应用。</string>
     <string name="settings_backBuffer_title">回退缓冲区</string>
@@ -172,7 +172,7 @@
     <string name="settings_playerBufferSizeBytes_subtitle">设置目标缓冲区大小（如果遇到内存不足问题，请减小此值）</string>
 
     <string name="settings_player_button_resetDefaults">重置默认值</string>
-    <string name="settings_player_button_killApp">点击关闭应用\n(应用播放器设置)</string>
+    <string name="settings_player_button_killApp">点击关闭应用\n（应用播放器设置）</string>
     <string name="settings_player_killDialog_title">现在关闭应用以应用设置？</string>
 
     <!--- DIALOGS -->
@@ -226,10 +226,10 @@
     <string name="addToPlaylistOrQueueDialog_playlists">歌单</string>
     <string name="addToPlaylistOrQueueDialog_createNew">新建</string>
     <string name="addToPlaylistOrQueueDialog_addQueue">添加到当前队列</string>
-    <string name="downloaded_snackbar_title">已下载 %s</string>
+    <string name="downloaded_snackbar_title">已下载%s</string>
 
-    <string name="downloaded_delete_snackbar_songs">已删除 %d 首歌曲。</string>
-    <string name="downloaded_delete_snackbar_song">已从下载中删除%s项</string>
+    <string name="downloaded_delete_snackbar_songs">已删除%d首歌曲。</string>
+    <string name="downloaded_delete_snackbar_song">已从下载中删除%s</string>
     <string name="downloaded_delete_snackbar_song_error">删除%s时出错</string>
 
     <string name="home_playlist_highest_title">高分歌曲</string>
@@ -238,7 +238,7 @@
     <string name="home_playlist_favourites_title">收藏歌曲</string>
 
     <string name="dialog_deletePlaylist_title">删除歌单</string>
-    <string name="dialog_deletePlaylist_text">删除 %s？</string>
+    <string name="dialog_deletePlaylist_text">删除%s？</string>
 
     <!-- NEW STRINGS -->
     <string name="item_title_album">专辑</string>
@@ -257,7 +257,7 @@
     <string name="playlist_dialog_add_large">您正在向此歌单添加大量歌曲。服务器处理此操作可能需要一些时间。</string>
 
     <!-- %s represents the title of the song -->
-    <string name="warning_song_remove_subtitle">"从下载的歌曲中删除 %s？"</string>
+    <string name="warning_song_remove_subtitle">"从下载的歌曲中删除%s？"</string>
 
     <string name="error_user_notEnabled">用户未启用，请检查您的电子邮件中的帐户确认链接或从服务器启用该用户</string>
     <string name="error_cannotConnect">连接到服务器或数据源时出现问题。\n请播放其他曲目或检查您的连接</string>
@@ -284,7 +284,7 @@
     <!-- "Donate" will be followed by Paypal or Bitcoin. ie "Donate Bitcoin" -->
     <string name="donate_btn_text">捐赠</string>
 
-    <string name="bitcoin_btn_contentDescription">捐赠比特币</string>
+    <string name="bitcoin_btn_contentDescription">通过比特币捐赠</string>
     <string name="paypal_btn_contentDescription">通过Paypal捐赠</string>
     <string name="bmac_btn_text">请我喝咖啡</string>
 
