@@ -27,7 +27,7 @@
     <string name="loginScreen_signup">注册</string>
     <string name="loginScreen_demo_server">Demo</string>
     <string name="loginScreen_loading_authenticating">正在连接……</string>
-    <string name="loginScreen_dogmazic_server">Dogmazic 音乐服务器 DEMO</string>
+    <string name="loginScreen_dogmazic_server">Dogmazic 音乐服务器 （预览版）</string>
     <string name="loginScreen_textFields_warning">兼容服务器4及以上版本。\n已在服务器版本6上测试</string>
     <string name="loginScreen_warning">若要连接到您自己的服务器，请下载完整版的 Power Ampache 2</string>
 
